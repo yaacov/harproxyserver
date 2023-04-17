@@ -1,10 +1,10 @@
 {
     "name": "harproxyserver",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "A simple proxy server that records and plays back HTTP requests and responses in HAR format.",
     "main": "dist/index.js",
     "bin": {
-        "harServer": "dist/harProxyServer.js"
+        "harProxyServer": "dist/harProxyServer.js"
     },
     "files": [
         "dist"

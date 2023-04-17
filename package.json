@@ -1,0 +1,50 @@
+{
+    "name": "har-server",
+    "version": "1.0.0",
+    "description": "A simple proxy server that records and plays back HTTP requests and responses in HAR format.",
+    "main": "dist/index.js",
+    "bin": {
+        "harServer": "dist/harServer.js"
+    },
+    "files": [
+        "dist"
+    ],
+    "exports": {
+        ".": "./dist/index.js",
+        "./harServer": "./dist/harServer.js"
+    },
+    "scripts": {
+        "build": "rollup -c",
+        "start": "ts-node src/main.ts",
+        "eslint": "eslint --ext .ts src",
+        "test": "echo \"No tests yet\""
+    },
+    "keywords": [
+        "har",
+        "proxy",
+        "http",
+        "middleware"
+    ],
+    "author": "Your Name Here",
+    "license": "MIT",
+    "dependencies": {
+        "express": "^4.18.2",
+        "fs": "^0.0.1-security",
+        "http-proxy-middleware": "^2.0.6",
+        "http-status-codes": "^2.2.0",
+        "path": "^0.12.7",
+        "yargs": "^17.7.1"
+    },
+    "devDependencies": {
+        "@types/express": "^4.17.17",
+        "@types/har-format": "^1.2.10",
+        "@types/http-proxy-middleware": "^1.0.0",
+        "@types/node": "^18.15.11",
+        "@types/yargs": "^17.0.24",
+        "@typescript-eslint/eslint-plugin": "^5.58.0",
+        "@typescript-eslint/parser": "^5.58.0",
+        "eslint": "^8.38.0",
+        "eslint-plugin-import": "^2.27.5",
+        "typescript": "^5.0.4"
+    }
+}

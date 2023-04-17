@@ -1,6 +1,6 @@
 {
     "name": "harproxyserver",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "A simple proxy server that records and plays back HTTP requests and responses in HAR format.",
     "main": "dist/index.js",
     "bin": {
@@ -15,7 +15,7 @@
     },
     "scripts": {
         "build": "rollup -c",
-        "start": "ts-node src/main.ts",
+        "start": "node --loader=ts-node/esm --inspect src/harProxyServer.ts",
         "eslint": "eslint --ext .ts src",
         "test": "jest",
         "docs": "typedoc"
@@ -55,6 +55,7 @@
         "memfs": "^3.5.0",
         "rollup": "^3.20.4",
         "ts-jest": "^29.1.0",
+        "ts-node": "^10.9.1",
         "typedoc": "^0.24.4",
         "typedoc-plugin-markdown": "^3.15.1",
         "typescript": "^5.0.4"

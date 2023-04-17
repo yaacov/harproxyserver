@@ -38,7 +38,7 @@ const argv = yargs(hideBin(process.argv))
       description: 'Show help',
     },
   })
-  .argv;
+  .parseSync();
 
 const targetUrl = argv['target-url'];
 const harFile = argv['har-file'];

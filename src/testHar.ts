@@ -52,6 +52,9 @@ export const testHar: Har = {
         comment: ''
       }
     ],
-    creator: undefined
+    creator: {
+      name: '',
+      version: '',
+    },
   }
 };

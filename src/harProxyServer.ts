@@ -19,7 +19,6 @@ const argv = yargs(hideBin(process.argv))
       alias: 't',
       type: 'string',
       description: 'The target URL to proxy',
-      demandOption: true,
     },
     'har-file': {
       alias: 'f',
@@ -42,7 +41,13 @@ const argv = yargs(hideBin(process.argv))
   .version('version', 'Show version and app information', `App: ${pkg.name}\nVersion: ${pkg.version}\nDescription: ${pkg.description}`)
   .parseSync();
 
-const targetUrl = argv['target-url'];
+// Check if target-url is provided when required
+if (argv.mode === 'record' && !argv['target-url']) {
+  console.error("Error: --target-url is required when --mode is 'record'");
+  process.exit(1);
+}
+
+const targetUrl = argv['target-url'] || '';
 const harFile = argv['har-file'];
 const app = express();
 const port = argv['port'];

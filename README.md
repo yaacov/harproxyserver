@@ -32,7 +32,7 @@ harProxyServer --target-url http://example.com --har-file example.har --mode rec
 
 Import the server and utility functions in your project:
 
-``` bash
+``` ts
 import { findHarEntry, recordedHarMiddleware } from 'harproxyserver';
 ```
 

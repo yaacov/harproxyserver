@@ -3,6 +3,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import json from "@rollup/plugin-json";
 
 export default {
   input: {
@@ -18,6 +19,6 @@ export default {
       plugins: [terser()],
     },
   ],
-  plugins: [nodeResolve({ preferBuiltins: true, mainFields: ['browser'] }), resolve(), commonjs(), typescript()],
+  plugins: [json(), nodeResolve({ preferBuiltins: true, mainFields: ['browser'] }), resolve(), commonjs(), typescript({ module: "ESNext" })],
   external: ['express', 'http-proxy-middleware', 'http-status-codes', 'yargs', 'yargs-parser', 'fs'],
 };

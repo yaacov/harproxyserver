@@ -31,14 +31,12 @@ const argv = yargs(hideBin(process.argv))
       type: 'string',
       description: 'The mode to run the server in (play or record)',
       choices: ['play', 'record'],
-      default: 'proxy',
-    },
-    help: {
-      alias: 'h',
-      description: 'Show help',
+      default: 'play',
     },
   })
   .version('version', 'Show version and app information', `App: ${pkg.name}\nVersion: ${pkg.version}\nDescription: ${pkg.description}`)
+  .help('h')
+  .alias('h', 'help')
   .parseSync();
 
 // Check if target-url is provided when required

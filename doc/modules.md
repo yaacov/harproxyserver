@@ -35,7 +35,7 @@ An array of headers in HAR format.
 
 #### Defined in
 
-[harLogger.ts:33](https://github.com/yaacov/harproxyserver/blob/0cd618f/src/harLogger.ts#L33)
+[harLogger.ts:33](https://github.com/yaacov/harproxyserver/blob/7035418/src/harLogger.ts#L33)
 
 ___
 
@@ -61,7 +61,7 @@ The matching HAR entry if found, or null if not found.
 
 #### Defined in
 
-[recordedHarMiddleware.ts:14](https://github.com/yaacov/harproxyserver/blob/0cd618f/src/recordedHarMiddleware.ts#L14)
+[recordedHarMiddleware.ts:14](https://github.com/yaacov/harproxyserver/blob/7035418/src/recordedHarMiddleware.ts#L14)
 
 ___
 
@@ -85,7 +85,7 @@ The parsed HAR object
 
 #### Defined in
 
-[recordedHarMiddleware.ts:29](https://github.com/yaacov/harproxyserver/blob/0cd618f/src/recordedHarMiddleware.ts#L29)
+[recordedHarMiddleware.ts:29](https://github.com/yaacov/harproxyserver/blob/7035418/src/recordedHarMiddleware.ts#L29)
 
 ___
 
@@ -124,7 +124,7 @@ Express middleware
 
 #### Defined in
 
-[recordedHarMiddleware.ts:55](https://github.com/yaacov/harproxyserver/blob/0cd618f/src/recordedHarMiddleware.ts#L55)
+[recordedHarMiddleware.ts:55](https://github.com/yaacov/harproxyserver/blob/7035418/src/recordedHarMiddleware.ts#L55)
 
 ___
 
@@ -162,7 +162,7 @@ Custom proxy response handler.
 
 #### Defined in
 
-[recorderHarMiddleware.ts:17](https://github.com/yaacov/harproxyserver/blob/0cd618f/src/recorderHarMiddleware.ts#L17)
+[recorderHarMiddleware.ts:17](https://github.com/yaacov/harproxyserver/blob/7035418/src/recorderHarMiddleware.ts#L17)
 
 ___
 
@@ -185,4 +185,4 @@ Appends the given HAR entry to the existing HAR log and saves it to the specifie
 
 #### Defined in
 
-[harLogger.ts:21](https://github.com/yaacov/harproxyserver/blob/0cd618f/src/harLogger.ts#L21)
+[harLogger.ts:21](https://github.com/yaacov/harproxyserver/blob/7035418/src/harLogger.ts#L21)

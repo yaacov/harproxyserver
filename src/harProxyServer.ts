@@ -3,6 +3,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
+import pkg from '../package.json';
 import { recordedHarMiddleware } from './recordedHarMiddleware';
 import { recorderHarMiddleware } from './recorderHarMiddleware';
 
@@ -38,6 +39,7 @@ const argv = yargs(hideBin(process.argv))
       description: 'Show help',
     },
   })
+  .version('version', 'Show version and app information', `App: ${pkg.name}\nVersion: ${pkg.version}\nDescription: ${pkg.description}`)
   .parseSync();
 
 const targetUrl = argv['target-url'];
@@ -46,6 +48,27 @@ const app = express();
 const port = argv['port'];
 const prefix = argv['prefix'];
 const mode = argv['mode'];
+
+/**
+ * Endpoint: /harproxyserver/version
+ * Method: GET
+ * Description: Returns a JSON object containing application information,
+ *              including the app name, version, and description.
+ *
+ * Response:
+ * {
+ *   "app": "appName",
+ *   "version": "appVersion",
+ *   "description": "appDescription"
+ * }
+ */
+app.get('/harproxyserver/version', (req, res) => {
+  res.json({
+    app: pkg.name,
+    version: pkg.version,
+    description: pkg.description,
+  });
+});
 
 /**
  * Set up the server based on the selected mode.

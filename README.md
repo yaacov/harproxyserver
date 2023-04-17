@@ -1,6 +1,6 @@
-# HAR Server
+# HAR Proxy Server
 
-HAR Server is a simple proxy server that records and plays back HTTP requests and responses in [HAR format](http://www.softwareishard.com/blog/har-12-spec/). It can be used as a standalone executable or integrated into other projects as an npm package.
+HAR Proxy Server is a simple proxy server that records and plays back HTTP requests and responses in [HAR format](http://www.softwareishard.com/blog/har-12-spec/). It can be used as a standalone executable or integrated into other projects as an npm package.
 
 ## Features
 
@@ -15,7 +15,7 @@ HAR Server is a simple proxy server that records and plays back HTTP requests an
 To install the server as a global command-line utility:
 
 ```bash
-npm install -g your-package-name
+npm install -g harproxyserver
 ```
 
 # Usage
@@ -25,7 +25,7 @@ npm install -g your-package-name
 Run the server using the harServer command:
 
 ``` bash
-harServer --target-url http://example.com --har-file example.har --mode record --prefix /har
+harProxyServer --target-url http://example.com --har-file example.har --mode record --prefix /har
 ```
 
 # In Your Project
@@ -33,7 +33,7 @@ harServer --target-url http://example.com --har-file example.har --mode record -
 Import the server and utility functions in your project:
 
 ``` bash
-import { initHarLog, recordHandler, playHandler, initServer } from 'your-package-name';
+import { findHarEntry, recordedHarMiddleware } from 'harproxyserver';
 ```
 
 # Command-Line Options
@@ -42,16 +42,6 @@ import { initHarLog, recordHandler, playHandler, initServer } from 'your-package
   -  --har-file: The HAR file name to save the log (optional, default: recording-<date and time>.har)
   -  --mode: The server mode, either 'record' or 'play' (required)
   -  --prefix: The prefix for the HAR playback endpoint (optional, default: '')
-
-# API
-
-## Utility Functions
-
-  -  `initHarLog(harFilePath: string)`: Initialize a new HAR log file
-  -  `saveHarEntry(entry: Har.Entry, harFilePath: string)`: Save a HAR entry to the log file
-  -  `recordHandler(targetUrl: string, harFilePath: string)`: Middleware function for recording requests and responses
-  -  `playHandler(harFilePath: string, prefix: string)`: Middleware function for playing back requests and responses from a HAR file
-  -  `initServer(argv: any)`: Initialize and run the server with command-line options
 
 # License
 

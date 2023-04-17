@@ -6,7 +6,6 @@ import { StatusCodes } from 'http-status-codes';
 
 import { convertToHarHeaders, saveHarLog } from './harLogger';
 
-
 /**
  * Middleware factory that records an HTTP request-response transaction and saves it in a HAR file.
  *

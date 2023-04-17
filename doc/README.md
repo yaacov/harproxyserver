@@ -1,3 +1,5 @@
+harproxyserver / [Exports](modules.md)
+
 # HAR Proxy Server
 
 HAR Proxy Server is a simple proxy server that records and plays back HTTP requests and responses in [HAR format](http://www.softwareishard.com/blog/har-12-spec/). It can be used as a standalone executable or integrated into other projects as an npm package.
@@ -19,10 +21,6 @@ npm install -g harproxyserver
 ```
 
 # Usage
-
-## API
-
-harproxyserver / [Exports](doc/modules.md)
 
 ## Standalone Executable
 

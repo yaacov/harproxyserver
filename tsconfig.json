@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "allowSyntheticDefaultImports": true,
+      "declaration": true,
+      "outDir": "./dist",
+    },
+    "include": [
+      "src/*.ts",
+    ],
+    "exclude": [
+      "node_modules",
+      "**/*.spec.ts",
+    ]
+  }
+  

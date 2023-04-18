@@ -2,7 +2,7 @@
     "name": "harproxyserver",
     "version": "0.0.6",
     "description": "A simple proxy server that records and plays back HTTP requests and responses in HAR format.",
-    "main": "dist/index.js",
+    "main": "dist/index.min.js",
     "bin": {
         "harProxyServer": "dist/harProxyServer.js"
     },
@@ -10,7 +10,7 @@
         "dist"
     ],
     "exports": {
-        ".": "./dist/index.js",
+        ".": "./dist/index.min.js",
         "./harProxyServer": "./dist/harProxyServer.js"
     },
     "scripts": {
@@ -24,6 +24,8 @@
     "keywords": [
         "har",
         "proxy",
+        "mock",
+        "testing",
         "http",
         "middleware"
     ],

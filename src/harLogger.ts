@@ -1,7 +1,7 @@
 import fs from 'fs';
-import type { IncomingHttpHeaders } from 'http';
+import * as http from 'http';
 
-import type { Entry, Har, Header, Log } from 'har-format';
+import { Entry, Har, Header, Log } from 'har-format';
 
 const harLog: Log = {
   version: '1.2',
@@ -30,7 +30,7 @@ export function saveHarLog(request: Entry, fileName: string) {
  * @param incomingHeaders The incoming headers to convert.
  * @returns An array of headers in HAR format.
  */
-export function convertToHarHeaders(incomingHeaders: IncomingHttpHeaders): Header[] {
+export function convertToHarHeaders(incomingHeaders: http.IncomingHttpHeaders): Header[] {
   const harHeaders: Header[] = [];
 
   for (const [name, value] of Object.entries(incomingHeaders)) {

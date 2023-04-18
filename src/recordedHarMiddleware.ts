@@ -1,7 +1,7 @@
 import fs from 'fs';
 
-import type { Request, Response, NextFunction } from 'express';
-import type { Har, Log, Entry } from 'har-format';
+import { Request, Response, NextFunction } from 'express';
+import { Har, Log, Entry } from 'har-format';
 
 /**
  * Finds the HAR entry in the given log with the matching HTTP method and path.

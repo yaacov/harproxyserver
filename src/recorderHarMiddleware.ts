@@ -1,4 +1,4 @@
-import type { IncomingMessage } from 'http';
+import * as http from 'http';
 
 import type express from 'express';
 import type { Entry } from 'har-format';
@@ -14,7 +14,7 @@ import { convertToHarHeaders, saveHarLog } from './harLogger';
  * @returns {function} Custom proxy response handler.
  */
 export const recorderHarMiddleware = (targetUrl: string, HARFileName: string) => {
-  return (proxyRes: IncomingMessage, req: express.Request) => {
+  return (proxyRes: http.IncomingMessage, req: express.Request, res: express.Response) => {
     const startTime = new Date().getTime();
     const request: Entry = createHarEntry(proxyRes, req, startTime);
 
@@ -24,6 +24,10 @@ export const recorderHarMiddleware = (targetUrl: string, HARFileName: string) =>
 
     proxyRes.on('end', () => {
       saveHarLog(request, HARFileName);
+
+      const resBodyText = request.response.content?.text || '';
+      res.setHeader('Content-Length', Buffer.byteLength(resBodyText));
+      res.end(resBodyText);
     });
   };
 };
@@ -36,7 +40,7 @@ export const recorderHarMiddleware = (targetUrl: string, HARFileName: string) =>
  * @param startTime The start time of the request in milliseconds.
  * @returns A HAR entry for the request and response.
  */
-function createHarEntry(proxyRes: IncomingMessage, req: express.Request, startTime: number): Entry {
+function createHarEntry(proxyRes: http.IncomingMessage, req: express.Request, startTime: number): Entry {
   return {
     startedDateTime: new Date(startTime).toISOString(),
     cache: {},

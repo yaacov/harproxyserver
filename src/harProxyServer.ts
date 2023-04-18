@@ -7,6 +7,9 @@ import pkg from '../package.json';
 import { recordedHarMiddleware } from './recordedHarMiddleware';
 import { recorderHarMiddleware } from './recorderHarMiddleware';
 
+const dateAndTime = new Date();
+const defaultHarFileName = `recording-${dateAndTime.toISOString().replace(/[:.]/g, '-')}.har`;
+
 const argv = yargs(hideBin(process.argv))
   .options({
     port: {
@@ -24,7 +27,7 @@ const argv = yargs(hideBin(process.argv))
       alias: 'f',
       type: 'string',
       description: 'The file path to save the HAR file',
-      default: 'file.har',
+      default: defaultHarFileName,
     },
     mode: {
       alias: 'm',

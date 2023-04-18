@@ -18,6 +18,7 @@
         "start": "node --loader=ts-node/esm --inspect src/harProxyServer.ts",
         "eslint": "eslint --ext .ts src",
         "test": "jest",
+        "clean": "rm -rf dist node_modules",
         "docs": "typedoc"
     },
     "keywords": [

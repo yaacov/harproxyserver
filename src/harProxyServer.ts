@@ -32,6 +32,11 @@ const argv = yargs(hideBin(process.argv))
       description: 'The file path to save the HAR file',
       default: defaultHarFileName,
     },
+    prefix: {
+      type: 'string',
+      description: 'The prefix for the HAR playback endpoint',
+      default: '',
+    },
     mode: {
       alias: 'm',
       type: 'string',
@@ -70,18 +75,12 @@ app.get('/harproxyserver/version', (req, res) => {
 // Set up the server based on the selected mode.
 switch(mode) {
 case 'play': {
-  /**
-   * Use the recorded HAR middleware to serve HAR data.
-   */
-  app.use(`${prefix}/`, recordedHarMiddleware(harFile, loadHarData));
+  app.use(`/${prefix}*`, recordedHarMiddleware(harFile, loadHarData, prefix));
   break;
 }
 case 'record': {
-  const onProxyResHandler = recorderHarMiddleware(harFile, appendEntryAndSaveHar);
+  const onProxyResHandler = recorderHarMiddleware(harFile, appendEntryAndSaveHar, targetUrl);
 
-  /**
-   * Set up the proxy middleware to forward requests to the target server.
-   */
   app.use(
     '/',
     createProxyMiddleware({

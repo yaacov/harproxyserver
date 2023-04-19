@@ -11,12 +11,13 @@ import type { AppendEntryAndSaveHarFn } from './harLogger';
  *
  * @param {string} harFilePath - The file path to save the HAR file.
  * @param {AppendEntryAndSaveHarFn} appendEntryAndSaveHar - Function to append the new entry and save the HAR file.
+ * @param {string} targetUrl - The prefix for the HAR playback endpoint.
  * @returns {function} Custom proxy response handler.
 */
-export const recorderHarMiddleware = (harFilePath: string, appendEntryAndSaveHar: AppendEntryAndSaveHarFn) => {
+export const recorderHarMiddleware = (harFilePath: string, appendEntryAndSaveHar: AppendEntryAndSaveHarFn, targetUrl: string) => {
   return (proxyRes: http.IncomingMessage, req: express.Request, res: express.Response) => {
     const startTime = new Date().getTime();
-    const newRequestEntry: Entry = createHarEntry(proxyRes, req, startTime);
+    const newRequestEntry: Entry = createHarEntry(targetUrl, proxyRes, req, startTime);
 
     proxyRes.on('data', (chunk: string) => {
       updateEntryOnData(newRequestEntry, startTime, chunk);
@@ -35,18 +36,19 @@ export const recorderHarMiddleware = (harFilePath: string, appendEntryAndSaveHar
 /**
  * Creates a HAR entry for the given proxy response and request.
  *
+ * @param targetUrl The prefix for the HAR playback endpoint.
  * @param proxyRes Response from the target server.
  * @param req Incoming request from the client.
  * @param startTime The start time of the request in milliseconds.
  * @returns A HAR entry for the request and response.
  */
-function createHarEntry(proxyRes: http.IncomingMessage, req: express.Request, startTime: number): Entry {
+function createHarEntry(targetUrl: string, proxyRes: http.IncomingMessage, req: express.Request, startTime: number): Entry {
   return {
     startedDateTime: new Date(startTime).toISOString(),
     cache: {},
     request: {
       method: req.method,
-      url: req.url,
+      url: `${targetUrl}${req.originalUrl}`,
       httpVersion: 'HTTP/1.1',
       cookies: [],
       headers: convertToHarHeaders(req.headers),

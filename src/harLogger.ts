@@ -23,6 +23,7 @@ export type AppendEntryAndSaveHarFn = (entry: Entry, filePath: string) => Promis
 
 /**
  * Finds the HAR entry in the given log with the matching HTTP method, base URL, and query parameters.
+ *
  * @param {Log} harLog - The HAR log to search through.
  * @param {string} method - The HTTP method of the desired entry.
  * @param {string} baseUrl - The base URL of the desired entry.

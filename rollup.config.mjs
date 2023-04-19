@@ -3,8 +3,8 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import shebang from 'rollup-plugin-preserve-shebang';
 import json from "@rollup/plugin-json";
-import shebang from 'rollup-plugin-shebang-bin';
 
 export default [
   {
@@ -20,7 +20,13 @@ export default [
         plugins: [terser()],
       },
     ],
-    plugins: [json(), nodeResolve({ preferBuiltins: true, mainFields: ['browser'] }), resolve(), commonjs(), typescript({ module: "esnext" })],
+    plugins: [
+      json(),
+      nodeResolve({ preferBuiltins: true, mainFields: ['browser'] }),
+      resolve(),
+      commonjs(),
+      typescript({ module: "esnext" }),
+    ],
     external: ['express', 'http-proxy-middleware', 'http-status-codes', 'yargs', 'yargs-parser'],
   },
   {
@@ -34,7 +40,16 @@ export default [
         entryFileNames: '[name].js',
       },
     ],
-    plugins: [json(), nodeResolve({ preferBuiltins: true }), resolve(), commonjs(), typescript({ module: "esnext" }), shebang()],
+    plugins: [
+      json(),
+      nodeResolve({ preferBuiltins: true }),
+      resolve(),
+      commonjs(),
+      typescript({ module: "esnext" }),
+      shebang({
+        shebang: '#!/usr/bin/env node'
+      }),
+    ],
     external: ['express', 'http-proxy-middleware', 'http-status-codes', 'yargs', 'yargs-parser'],
   }
 ];

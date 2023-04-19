@@ -1,6 +1,6 @@
 {
     "name": "harproxyserver",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "description": "A simple proxy server that records and plays back HTTP requests and responses in HAR format.",
     "main": "dist/index.min.js",
     "bin": {
@@ -55,7 +55,7 @@
         "eslint-plugin-import": "^2.27.5",
         "jest": "^29.5.0",
         "rollup": "^3.20.4",
-        "rollup-plugin-shebang-bin": "^0.0.5",
+        "rollup-plugin-preserve-shebang": "^1.0.1",
         "ts-jest": "^29.1.0",
         "ts-node": "^10.9.1",
         "typedoc": "^0.24.4",

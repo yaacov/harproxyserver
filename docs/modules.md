@@ -4,40 +4,75 @@
 
 ## Table of contents
 
+### Type Aliases
+
+- [AppendEntryAndSaveHarFn](modules.md#appendentryandsaveharfn)
+- [LoadHarDataFn](modules.md#loadhardatafn)
+
 ### Functions
 
-- [convertToHarHeaders](modules.md#converttoharheaders)
 - [findHarEntry](modules.md#findharentry)
-- [readHarFile](modules.md#readharfile)
 - [recordedHarMiddleware](modules.md#recordedharmiddleware)
 - [recorderHarMiddleware](modules.md#recorderharmiddleware)
-- [saveHarLog](modules.md#saveharlog)
 
-## Functions
+## Type Aliases
 
-### convertToHarHeaders
+### AppendEntryAndSaveHarFn
 
-▸ **convertToHarHeaders**(`incomingHeaders`): `Header`[]
+Ƭ **AppendEntryAndSaveHarFn**: (`entry`: `Entry`, `filePath`: `string`) => `Promise`<`Har`\>
 
-Converts the given incoming headers to HAR format.
+#### Type declaration
 
-#### Parameters
+▸ (`entry`, `filePath`): `Promise`<`Har`\>
+
+A type representing a function that sets a new HAR entry and saves it to a given file.
+
+##### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `incomingHeaders` | `IncomingHttpHeaders` | The incoming headers to convert. |
+| `entry` | `Entry` | The new HAR entry to be added. |
+| `filePath` | `string` | The path of the file to save the updated HAR data to. |
 
-#### Returns
+##### Returns
 
-`Header`[]
+`Promise`<`Har`\>
 
-An array of headers in HAR format.
+A promise that resolves to the updated HAR object.
 
 #### Defined in
 
-[harLogger.ts:33](https://github.com/yaacov/harproxyserver/blob/2d17b56/src/harLogger.ts#L33)
+[harLogger.ts:22](https://github.com/yaacov/harproxyserver/blob/8cddf01/src/harLogger.ts#L22)
 
 ___
+
+### LoadHarDataFn
+
+Ƭ **LoadHarDataFn**: (`filePath`: `string`) => `Promise`<`Har`\>
+
+#### Type declaration
+
+▸ (`filePath`): `Promise`<`Har`\>
+
+A type representing a function that retrieves a HAR object from a given file.
+
+##### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `filePath` | `string` | The path of the file to read the HAR data from. |
+
+##### Returns
+
+`Promise`<`Har`\>
+
+A promise that resolves to the HAR object.
+
+#### Defined in
+
+[harLogger.ts:11](https://github.com/yaacov/harproxyserver/blob/8cddf01/src/harLogger.ts#L11)
+
+## Functions
 
 ### findHarEntry
 
@@ -61,37 +96,13 @@ The matching HAR entry if found, or null if not found.
 
 #### Defined in
 
-[recordedHarMiddleware.ts:14](https://github.com/yaacov/harproxyserver/blob/2d17b56/src/recordedHarMiddleware.ts#L14)
-
-___
-
-### readHarFile
-
-▸ **readHarFile**(`harFilePath`): `Promise`<`Har`\>
-
-Reads a HAR file and returns the parsed HAR object.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `harFilePath` | `string` | The path of the HAR file to read |
-
-#### Returns
-
-`Promise`<`Har`\>
-
-The parsed HAR object
-
-#### Defined in
-
-[recordedHarMiddleware.ts:29](https://github.com/yaacov/harproxyserver/blob/2d17b56/src/recordedHarMiddleware.ts#L29)
+[harLogger.ts:32](https://github.com/yaacov/harproxyserver/blob/8cddf01/src/harLogger.ts#L32)
 
 ___
 
 ### recordedHarMiddleware
 
-▸ **recordedHarMiddleware**(`harFilePath`): (`req`: `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\>, `res`: `Response`<`any`, `Record`<`string`, `any`\>\>, `next`: `NextFunction`) => `Promise`<`void`\>
+▸ **recordedHarMiddleware**(`harFilePath`, `getHar`): (`req`: `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\>, `res`: `Response`<`any`, `Record`<`string`, `any`\>\>, `next`: `NextFunction`) => `Promise`<`void`\>
 
 A middleware factory that reads the HAR file and returns the body of the recorded request
 based on the path and method.
@@ -101,6 +112,7 @@ based on the path and method.
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `harFilePath` | `string` | The path of the HAR file to read |
+| `getHar` | [`LoadHarDataFn`](modules.md#loadhardatafn) | - |
 
 #### Returns
 
@@ -124,13 +136,13 @@ Express middleware
 
 #### Defined in
 
-[recordedHarMiddleware.ts:55](https://github.com/yaacov/harproxyserver/blob/2d17b56/src/recordedHarMiddleware.ts#L55)
+[recordedHarMiddleware.ts:12](https://github.com/yaacov/harproxyserver/blob/8cddf01/src/recordedHarMiddleware.ts#L12)
 
 ___
 
 ### recorderHarMiddleware
 
-▸ **recorderHarMiddleware**(`targetUrl`, `HARFileName`): (`proxyRes`: `IncomingMessage`, `req`: `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\>) => `void`
+▸ **recorderHarMiddleware**(`harFilePath`, `appendEntryAndSaveHar`): (`proxyRes`: `IncomingMessage`, `req`: `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\>, `res`: `Response`<`any`, `Record`<`string`, `any`\>\>) => `void`
 
 Middleware factory that records an HTTP request-response transaction and saves it in a HAR file.
 
@@ -138,8 +150,8 @@ Middleware factory that records an HTTP request-response transaction and saves i
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `targetUrl` | `string` | The target URL to proxy. |
-| `HARFileName` | `string` | The file path to save the HAR file. |
+| `harFilePath` | `string` | The file path to save the HAR file. |
+| `appendEntryAndSaveHar` | [`AppendEntryAndSaveHarFn`](modules.md#appendentryandsaveharfn) | Function to append the new entry and save the HAR file. |
 
 #### Returns
 
@@ -147,7 +159,7 @@ Middleware factory that records an HTTP request-response transaction and saves i
 
 Custom proxy response handler.
 
-▸ (`proxyRes`, `req`): `void`
+▸ (`proxyRes`, `req`, `res`): `void`
 
 ##### Parameters
 
@@ -155,6 +167,7 @@ Custom proxy response handler.
 | :------ | :------ |
 | `proxyRes` | `IncomingMessage` |
 | `req` | `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\> |
+| `res` | `Response`<`any`, `Record`<`string`, `any`\>\> |
 
 ##### Returns
 
@@ -162,27 +175,4 @@ Custom proxy response handler.
 
 #### Defined in
 
-[recorderHarMiddleware.ts:16](https://github.com/yaacov/harproxyserver/blob/2d17b56/src/recorderHarMiddleware.ts#L16)
-
-___
-
-### saveHarLog
-
-▸ **saveHarLog**(`request`, `fileName`): `void`
-
-Appends the given HAR entry to the existing HAR log and saves it to the specified file.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `request` | `Entry` | The HAR entry to save. |
-| `fileName` | `string` | The name of the file to save the HAR log to. |
-
-#### Returns
-
-`void`
-
-#### Defined in
-
-[harLogger.ts:21](https://github.com/yaacov/harproxyserver/blob/2d17b56/src/harLogger.ts#L21)
+[recorderHarMiddleware.ts:16](https://github.com/yaacov/harproxyserver/blob/8cddf01/src/recorderHarMiddleware.ts#L16)

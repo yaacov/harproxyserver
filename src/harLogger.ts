@@ -1,47 +1,39 @@
-import fs from 'fs';
-import * as http from 'http';
-
-import { Entry, Har, Header, Log } from 'har-format';
-
-const harLog: Log = {
-  version: '1.2',
-  creator: {
-    name: 'ProxyServer',
-    version: '1.0',
-  },
-  entries: [],
-};
+import { Entry, Har, Log } from 'har-format';
 
 /**
- * Appends the given HAR entry to the existing HAR log and saves it to the specified file.
+ * A type representing a function that retrieves a HAR object from a given file.
  *
- * @param request The HAR entry to save.
- * @param fileName The name of the file to save the HAR log to.
+ * @typedef LoadHarDataFn
+ * @type {function}
+ * @param {string} filePath - The path of the file to read the HAR data from.
+ * @returns {Promise<Har>} A promise that resolves to the HAR object.
  */
-export function saveHarLog(request: Entry, fileName: string) {
-  harLog.entries.push(request);
-  const har: Har = { log: harLog };
-  fs.writeFileSync(fileName, JSON.stringify(har, null, 2));
-}
+export type LoadHarDataFn = (filePath: string) => Promise<Har>;
 
 /**
- * Converts the given incoming headers to HAR format.
+ * A type representing a function that sets a new HAR entry and saves it to a given file.
  *
- * @param incomingHeaders The incoming headers to convert.
- * @returns An array of headers in HAR format.
+ * @typedef AppendEntryAndSaveHarFn
+ * @type {function}
+ * @param {Entry} entry - The new HAR entry to be added.
+ * @param {string} filePath - The path of the file to save the updated HAR data to.
+ * @returns {Promise<Har>} A promise that resolves to the updated HAR object.
  */
-export function convertToHarHeaders(incomingHeaders: http.IncomingHttpHeaders): Header[] {
-  const harHeaders: Header[] = [];
+export type AppendEntryAndSaveHarFn = (entry: Entry, filePath: string) => Promise<Har>;
 
-  for (const [name, value] of Object.entries(incomingHeaders)) {
-    if (Array.isArray(value)) {
-      for (const val of value) {
-        harHeaders.push({ name, value: val });
-      }
-    } else {
-      harHeaders.push({ name, value: value || '' });
+/**
+ * Finds the HAR entry in the given log with the matching HTTP method and path.
+ *
+ * @param harLog The HAR log to search through.
+ * @param method The HTTP method of the desired entry.
+ * @param path The path of the desired entry.
+ * @returns The matching HAR entry if found, or null if not found.
+ */
+export function findHarEntry(harLog: Log, method: string, path: string): Entry | null {
+  for (const entry of harLog.entries) {
+    if (entry.request.method === method && entry.request.url.endsWith(path)) {
+      return entry;
     }
   }
-
-  return harHeaders;
+  return null;
 }

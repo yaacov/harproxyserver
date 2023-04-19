@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import yargs from 'yargs';
@@ -6,6 +8,7 @@ import { hideBin } from 'yargs/helpers';
 import pkg from '../package.json';
 import { recordedHarMiddleware } from './recordedHarMiddleware';
 import { recorderHarMiddleware } from './recorderHarMiddleware';
+import { loadHarData, appendEntryAndSaveHar } from './harFileUtils';
 
 const dateAndTime = new Date();
 const defaultHarFileName = `recording-${dateAndTime.toISOString().replace(/[:.]/g, '-')}.har`;
@@ -55,19 +58,7 @@ const port = argv['port'];
 const prefix = argv['prefix'];
 const mode = argv['mode'];
 
-/**
- * Endpoint: /harproxyserver/version
- * Method: GET
- * Description: Returns a JSON object containing application information,
- *              including the app name, version, and description.
- *
- * Response:
- * {
- *   "app": "appName",
- *   "version": "appVersion",
- *   "description": "appDescription"
- * }
- */
+// This route returns the application's name, version, and description as a JSON object.
 app.get('/harproxyserver/version', (req, res) => {
   res.json({
     app: pkg.name,
@@ -76,26 +67,17 @@ app.get('/harproxyserver/version', (req, res) => {
   });
 });
 
-/**
- * Set up the server based on the selected mode.
- */
+// Set up the server based on the selected mode.
 switch(mode) {
 case 'play': {
   /**
    * Use the recorded HAR middleware to serve HAR data.
    */
-  app.use(`${prefix}/`, recordedHarMiddleware(harFile));
+  app.use(`${prefix}/`, recordedHarMiddleware(harFile, loadHarData));
   break;
 }
 case 'record': {
-  /**
-   * Custom handler for proxy response.
-   *
-   * @param {http.IncomingMessage} proxyRes - The response from the target server
-   * @param {http.ServerResponse} res - The server response to the client
-   * @param {http.ClientRequest} req - The client request
-   */
-  const onProxyResHandler = recorderHarMiddleware(targetUrl, harFile);
+  const onProxyResHandler = recorderHarMiddleware(harFile, appendEntryAndSaveHar);
 
   /**
    * Set up the proxy middleware to forward requests to the target server.

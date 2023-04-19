@@ -1,4 +1,4 @@
-import { findHarEntry } from './recordedHarMiddleware';
+import { findHarEntry } from '../harLogger';
 import { testHar } from './testHar';
 
 describe('findHarEntry', () => {

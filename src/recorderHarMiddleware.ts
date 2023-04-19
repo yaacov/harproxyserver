@@ -1,31 +1,31 @@
 import * as http from 'http';
 
 import type express from 'express';
-import type { Entry } from 'har-format';
+import type { Entry, Header } from 'har-format';
 import { StatusCodes } from 'http-status-codes';
 
-import { convertToHarHeaders, saveHarLog } from './harLogger';
+import type { AppendEntryAndSaveHarFn } from './harLogger';
 
 /**
  * Middleware factory that records an HTTP request-response transaction and saves it in a HAR file.
  *
- * @param {string} targetUrl - The target URL to proxy.
- * @param {string} HARFileName - The file path to save the HAR file.
+ * @param {string} harFilePath - The file path to save the HAR file.
+ * @param {AppendEntryAndSaveHarFn} appendEntryAndSaveHar - Function to append the new entry and save the HAR file.
  * @returns {function} Custom proxy response handler.
- */
-export const recorderHarMiddleware = (targetUrl: string, HARFileName: string) => {
+*/
+export const recorderHarMiddleware = (harFilePath: string, appendEntryAndSaveHar: AppendEntryAndSaveHarFn) => {
   return (proxyRes: http.IncomingMessage, req: express.Request, res: express.Response) => {
     const startTime = new Date().getTime();
-    const request: Entry = createHarEntry(proxyRes, req, startTime);
+    const newRequestEntry: Entry = createHarEntry(proxyRes, req, startTime);
 
     proxyRes.on('data', (chunk: string) => {
-      updateEntryOnData(request, startTime, chunk);
+      updateEntryOnData(newRequestEntry, startTime, chunk);
     });
 
-    proxyRes.on('end', () => {
-      saveHarLog(request, HARFileName);
+    proxyRes.on('end', async () => {
+      await appendEntryAndSaveHar(newRequestEntry, harFilePath);
 
-      const resBodyText = request.response.content?.text || '';
+      const resBodyText = newRequestEntry.response.content?.text || '';
       res.setHeader('Content-Length', Buffer.byteLength(resBodyText));
       res.end(resBodyText);
     });
@@ -81,15 +81,57 @@ function createHarEntry(proxyRes: http.IncomingMessage, req: express.Request, st
 /**
  * Updates the given HAR entry with data received from the target server.
  *
- * @param entry The HAR entry to update.
+ * @param newRequestEntry The HAR entry to update.
  * @param startTime The start time of the request in milliseconds.
  * @param chunk A chunk of data received from the target server.
  */
-function updateEntryOnData(entry: Entry, startTime: number, chunk: string) {
+function updateEntryOnData(newRequestEntry: Entry, startTime: number, chunk: string) {
   const endTime = new Date().getTime();
-  entry.time = endTime - startTime;
-  entry.timings.receive = entry.time;
 
-  entry.response.content.text = entry.response.content.text?.concat(chunk) || '';
-  entry.response.content.size = entry.response.content.text?.length || 0;
+  newRequestEntry.time = endTime - startTime;
+  newRequestEntry.timings.receive = newRequestEntry.time;
+
+  newRequestEntry.response.content.text = newRequestEntry.response.content.text?.concat(chunk) || '';
+  newRequestEntry.response.content.size = newRequestEntry.response.content.text?.length || 0;
+}
+
+/**
+ * Processes a single header value and returns an object with the header name and value.
+ *
+ * @param name The header name.
+ * @param value The header value.
+ * @returns An object with the header name and value.
+ */
+function processHeaderValue(name: string, value: string): Header {
+  return { name, value };
+}
+
+/**
+ * Converts a single incoming header to an array of HAR headers.
+ *
+ * @param name The header name.
+ * @param value The header value.
+ * @returns An array of headers in HAR format.
+ */
+function convertIncomingHeaderToHar(name: string, value: string | string[]): Header[] {
+  const values = Array.isArray(value) ? value : [value];
+  return values.map((val) => processHeaderValue(name, val));
+}
+
+/**
+ * Converts the given incoming headers to HAR format.
+ *
+ * @param incomingHeaders The incoming headers to convert.
+ * @returns An array of headers in HAR format.
+ */
+function convertToHarHeaders(incomingHeaders: http.IncomingHttpHeaders): Header[] {
+  const harHeaders: Header[] = [];
+
+  Object.entries(incomingHeaders)
+    .filter(([, value]) => typeof value === "string" || Array.isArray(value))
+    .forEach(([name, value]) => {
+      harHeaders.push(...convertIncomingHeaderToHar(name, value as string | string[]));
+    });
+
+  return harHeaders;
 }

@@ -4,6 +4,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import json from "@rollup/plugin-json";
+import shebang from 'rollup-plugin-shebang-bin';
 
 export default [
   {
@@ -33,7 +34,7 @@ export default [
         entryFileNames: '[name].js',
       },
     ],
-    plugins: [json(), nodeResolve({ preferBuiltins: true }), resolve(), commonjs(), typescript({ module: "esnext" })],
+    plugins: [json(), nodeResolve({ preferBuiltins: true }), resolve(), commonjs(), typescript({ module: "esnext" }), shebang()],
     external: ['express', 'http-proxy-middleware', 'http-status-codes', 'yargs', 'yargs-parser'],
   }
 ];

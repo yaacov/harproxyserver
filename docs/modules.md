@@ -12,8 +12,6 @@
 ### Functions
 
 - [findHarEntry](modules.md#findharentry)
-- [recordedHarMiddleware](modules.md#recordedharmiddleware)
-- [recorderHarMiddleware](modules.md#recorderharmiddleware)
 
 ## Type Aliases
 
@@ -42,7 +40,7 @@ A promise that resolves to the updated HAR object.
 
 #### Defined in
 
-[harLogger.ts:22](https://github.com/yaacov/harproxyserver/blob/8cddf01/src/harLogger.ts#L22)
+[harLogger.ts:22](https://github.com/yaacov/harproxyserver/blob/951f420/src/harLogger.ts#L22)
 
 ___
 
@@ -70,15 +68,15 @@ A promise that resolves to the HAR object.
 
 #### Defined in
 
-[harLogger.ts:11](https://github.com/yaacov/harproxyserver/blob/8cddf01/src/harLogger.ts#L11)
+[harLogger.ts:11](https://github.com/yaacov/harproxyserver/blob/951f420/src/harLogger.ts#L11)
 
 ## Functions
 
 ### findHarEntry
 
-▸ **findHarEntry**(`harLog`, `method`, `path`): `Entry` \| ``null``
+▸ **findHarEntry**(`harLog`, `method`, `baseUrl`): `Entry` \| ``null``
 
-Finds the HAR entry in the given log with the matching HTTP method and path.
+Finds the HAR entry in the given log with the matching HTTP method, base URL, and query parameters.
 
 #### Parameters
 
@@ -86,7 +84,7 @@ Finds the HAR entry in the given log with the matching HTTP method and path.
 | :------ | :------ | :------ |
 | `harLog` | `Log` | The HAR log to search through. |
 | `method` | `string` | The HTTP method of the desired entry. |
-| `path` | `string` | The path of the desired entry. |
+| `baseUrl` | `string` | The base URL of the desired entry. |
 
 #### Returns
 
@@ -96,83 +94,4 @@ The matching HAR entry if found, or null if not found.
 
 #### Defined in
 
-[harLogger.ts:32](https://github.com/yaacov/harproxyserver/blob/8cddf01/src/harLogger.ts#L32)
-
-___
-
-### recordedHarMiddleware
-
-▸ **recordedHarMiddleware**(`harFilePath`, `getHar`): (`req`: `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\>, `res`: `Response`<`any`, `Record`<`string`, `any`\>\>, `next`: `NextFunction`) => `Promise`<`void`\>
-
-A middleware factory that reads the HAR file and returns the body of the recorded request
-based on the path and method.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `harFilePath` | `string` | The path of the HAR file to read |
-| `getHar` | [`LoadHarDataFn`](modules.md#loadhardatafn) | - |
-
-#### Returns
-
-`fn`
-
-Express middleware
-
-▸ (`req`, `res`, `next`): `Promise`<`void`\>
-
-##### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `req` | `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\> |
-| `res` | `Response`<`any`, `Record`<`string`, `any`\>\> |
-| `next` | `NextFunction` |
-
-##### Returns
-
-`Promise`<`void`\>
-
-#### Defined in
-
-[recordedHarMiddleware.ts:12](https://github.com/yaacov/harproxyserver/blob/8cddf01/src/recordedHarMiddleware.ts#L12)
-
-___
-
-### recorderHarMiddleware
-
-▸ **recorderHarMiddleware**(`harFilePath`, `appendEntryAndSaveHar`): (`proxyRes`: `IncomingMessage`, `req`: `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\>, `res`: `Response`<`any`, `Record`<`string`, `any`\>\>) => `void`
-
-Middleware factory that records an HTTP request-response transaction and saves it in a HAR file.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `harFilePath` | `string` | The file path to save the HAR file. |
-| `appendEntryAndSaveHar` | [`AppendEntryAndSaveHarFn`](modules.md#appendentryandsaveharfn) | Function to append the new entry and save the HAR file. |
-
-#### Returns
-
-`fn`
-
-Custom proxy response handler.
-
-▸ (`proxyRes`, `req`, `res`): `void`
-
-##### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `proxyRes` | `IncomingMessage` |
-| `req` | `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\> |
-| `res` | `Response`<`any`, `Record`<`string`, `any`\>\> |
-
-##### Returns
-
-`void`
-
-#### Defined in
-
-[recorderHarMiddleware.ts:16](https://github.com/yaacov/harproxyserver/blob/8cddf01/src/recorderHarMiddleware.ts#L16)
+[harLogger.ts:32](https://github.com/yaacov/harproxyserver/blob/951f420/src/harLogger.ts#L32)

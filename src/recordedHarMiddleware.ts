@@ -9,14 +9,14 @@ import { findHarEntry } from './harLogger';
  * @param {string} harFilePath - The path of the HAR file to read
  * @returns {function} Express middleware
  */
-export const recordedHarMiddleware = (harFilePath: string, getHar: LoadHarDataFn) => {
+export const recordedHarMiddleware = (harFilePath: string, getHar: LoadHarDataFn, prefix: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const har = await getHar(harFilePath);
-      const path = req.params.path;
+      const baseUrl = req.baseUrl.slice(prefix.length); // remove prefix
       const method = req.method;
 
-      const recordedEntry = findHarEntry(har.log, method, path);
+      const recordedEntry = findHarEntry(har.log, method, baseUrl);
 
       if (recordedEntry) {
         const { status, content } = recordedEntry.response;

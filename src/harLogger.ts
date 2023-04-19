@@ -22,16 +22,18 @@ export type LoadHarDataFn = (filePath: string) => Promise<Har>;
 export type AppendEntryAndSaveHarFn = (entry: Entry, filePath: string) => Promise<Har>;
 
 /**
- * Finds the HAR entry in the given log with the matching HTTP method and path.
- *
- * @param harLog The HAR log to search through.
- * @param method The HTTP method of the desired entry.
- * @param path The path of the desired entry.
- * @returns The matching HAR entry if found, or null if not found.
+ * Finds the HAR entry in the given log with the matching HTTP method, base URL, and query parameters.
+ * @param {Log} harLog - The HAR log to search through.
+ * @param {string} method - The HTTP method of the desired entry.
+ * @param {string} baseUrl - The base URL of the desired entry.
+ * @returns {Entry | null} The matching HAR entry if found, or null if not found.
  */
-export function findHarEntry(harLog: Log, method: string, path: string): Entry | null {
+export function findHarEntry(harLog: Log, method: string, baseUrl: string): Entry | null {
   for (const entry of harLog.entries) {
-    if (entry.request.method === method && entry.request.url.endsWith(path)) {
+    const urlObject = new URL(entry.request.url);
+    const pathname = baseUrl || '/';
+
+    if (entry.request.method === method && urlObject.pathname === pathname) {
       return entry;
     }
   }

@@ -4,14 +4,14 @@ import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { createServer as createHttpServer } from 'http';
+import { createServer as createHttpsServer } from 'https';
+import { readFileSync } from 'fs';
 
 import pkg from '../package.json';
 import { recordedHarMiddleware } from './recordedHarMiddleware';
 import { recorderHarMiddleware } from './recorderHarMiddleware';
 import { loadHarData, appendEntryAndSaveHar } from './harFileUtils';
-
-const dateAndTime = new Date();
-const defaultHarFileName = `recording-${dateAndTime.toISOString().replace(/[:.]/g, '-')}.har`;
 
 const argv = yargs(hideBin(process.argv))
   .options({
@@ -29,8 +29,7 @@ const argv = yargs(hideBin(process.argv))
     'har-file': {
       alias: 'f',
       type: 'string',
-      description: 'The file path to save the HAR file',
-      default: defaultHarFileName,
+      description: 'The file path to save the HAR file (default: recording-[date and time].har)',
     },
     prefix: {
       type: 'string',
@@ -44,6 +43,19 @@ const argv = yargs(hideBin(process.argv))
       choices: ['play', 'record'],
       default: 'play',
     },
+    tls: {
+      type: 'boolean',
+      description: 'Run the server in secure mode (HTTPS)',
+      default: false,
+    },
+    'key-file': {
+      type: 'string',
+      description: 'Path to the TLS private key file',
+    },
+    'cert-file': {
+      type: 'string',
+      description: 'Path to the TLS certificate file',
+    },
   })
   .version('version', 'Show version and app information', `App: ${pkg.name}\nVersion: ${pkg.version}\nDescription: ${pkg.description}`)
   .help('h')
@@ -56,12 +68,15 @@ if (argv.mode === 'record' && !argv['target-url']) {
   process.exit(1);
 }
 
+// Set the default HAR file name after argument parsing
+const dateAndTime = new Date();
+const defaultHarFileName = `recording-${dateAndTime.toISOString().replace(/[:.]/g, '-')}.har`;
+
+// Sanity check for CLI arguments
 const targetUrl = argv['target-url'] || '';
-const harFile = argv['har-file'];
+const harFile = argv['har-file'] || defaultHarFileName;
+
 const app = express();
-const port = argv['port'];
-const prefix = argv['prefix'];
-const mode = argv['mode'];
 
 // This route returns the application's name, version, and description as a JSON object.
 app.get('/harproxyserver/version', (req, res) => {
@@ -73,9 +88,9 @@ app.get('/harproxyserver/version', (req, res) => {
 });
 
 // Set up the server based on the selected mode.
-switch(mode) {
+switch(argv.mode) {
 case 'play': {
-  app.use(`/${prefix}*`, recordedHarMiddleware(harFile, loadHarData, prefix));
+  app.use(`/${argv.prefix}*`, recordedHarMiddleware(harFile, loadHarData, argv.prefix));
   break;
 }
 case 'record': {
@@ -94,6 +109,24 @@ case 'record': {
 }
 }
 
-app.listen(port, () => {
-  console.log(`Proxy server listening at http://localhost:${port}`);
+// Create HTTP or HTTPS server based on the CLI options
+const createServer = () => {
+  if (argv.tls) {
+    if (!argv['key-file'] || !argv['cert-file']) {
+      console.error('Error: Both --key-file and --cert-file must be provided when using --tls');
+      process.exit(1);
+    }
+    const privateKey = readFileSync(argv['key-file'], 'utf8');
+    const certificate = readFileSync(argv['cert-file'], 'utf8');
+    const credentials = { key: privateKey, cert: certificate };
+    return createHttpsServer(credentials, app);
+  } else {
+    return createHttpServer(app);
+  }
+};
+
+const server = createServer();
+server.listen(argv.port, () => {
+  const protocol = argv.tls ? 'https' : 'http';
+  console.log(`Proxy server listening at ${protocol}://localhost:${argv.port}`);
 });

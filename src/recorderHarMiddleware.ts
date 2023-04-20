@@ -4,7 +4,7 @@ import type express from 'express';
 import type { Entry, Header } from 'har-format';
 import { StatusCodes } from 'http-status-codes';
 
-import type { AppendEntryAndSaveHarFn } from './harLogger';
+import { createHarEntryFromText, type AppendEntryAndSaveHarFn, HarEntryParams } from './harUtils';
 
 /**
  * Middleware factory that records an HTTP request-response transaction and saves it in a HAR file.
@@ -17,7 +17,7 @@ import type { AppendEntryAndSaveHarFn } from './harLogger';
 export const recorderHarMiddleware = (harFilePath: string, appendEntryAndSaveHar: AppendEntryAndSaveHarFn, targetUrl: string) => {
   return (proxyRes: http.IncomingMessage, req: express.Request, res: express.Response) => {
     const startTime = new Date().getTime();
-    const newRequestEntry: Entry = createHarEntry(targetUrl, proxyRes, req, startTime);
+    const newRequestEntry: Entry = createHarEntry(targetUrl, proxyRes, req);
 
     proxyRes.on('data', (chunk: string) => {
       updateEntryOnData(newRequestEntry, startTime, chunk);
@@ -39,45 +39,20 @@ export const recorderHarMiddleware = (harFilePath: string, appendEntryAndSaveHar
  * @param targetUrl The prefix for the HAR playback endpoint.
  * @param proxyRes Response from the target server.
  * @param req Incoming request from the client.
- * @param startTime The start time of the request in milliseconds.
  * @returns A HAR entry for the request and response.
  */
-function createHarEntry(targetUrl: string, proxyRes: http.IncomingMessage, req: express.Request, startTime: number): Entry {
-  return {
-    startedDateTime: new Date(startTime).toISOString(),
-    cache: {},
-    request: {
-      method: req.method,
-      url: `${targetUrl}${req.originalUrl}`,
-      httpVersion: 'HTTP/1.1',
-      cookies: [],
-      headers: convertToHarHeaders(req.headers),
-      queryString: [],
-      headersSize: -1,
-      bodySize: -1,
-    },
-    response: {
-      status: proxyRes.statusCode || StatusCodes.BAD_GATEWAY,
-      statusText: proxyRes.statusMessage || '',
-      httpVersion: 'HTTP/1.1',
-      cookies: [],
-      headers: convertToHarHeaders(proxyRes.headers),
-      content: {
-        size: 0,
-        text: '',
-        mimeType: proxyRes.headers['content-type'] || 'text/plain',
-      },
-      redirectURL: '',
-      headersSize: -1,
-      bodySize: -1,
-    },
-    time: 0,
-    timings: {
-      send: 0,
-      wait: 0,
-      receive: 0,
-    },
+function createHarEntry(targetUrl: string, proxyRes: http.IncomingMessage, req: express.Request): Entry {
+  const params: HarEntryParams = {
+    baseUrl: targetUrl,
+    endpoint: req.originalUrl,
+    text: '',
+    mimeType: proxyRes.headers['content-type'] || 'text/plain',
+    requestMethod: req.method,
+    statusCode: proxyRes.statusCode || StatusCodes.BAD_GATEWAY,
+    headers: convertToHarHeaders(proxyRes.headers),
   };
+
+  return createHarEntryFromText(params);
 }
 
 /**

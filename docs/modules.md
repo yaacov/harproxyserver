@@ -7,10 +7,12 @@
 ### Type Aliases
 
 - [AppendEntryAndSaveHarFn](modules.md#appendentryandsaveharfn)
+- [HarEntryParams](modules.md#harentryparams)
 - [LoadHarDataFn](modules.md#loadhardatafn)
 
 ### Functions
 
+- [createHarEntryFromText](modules.md#createharentryfromtext)
 - [findHarEntry](modules.md#findharentry)
 - [recordedHarMiddleware](modules.md#recordedharmiddleware)
 - [recorderHarMiddleware](modules.md#recorderharmiddleware)
@@ -42,7 +44,31 @@ A promise that resolves to the updated HAR object.
 
 #### Defined in
 
-[harLogger.ts:22](https://github.com/yaacov/harproxyserver/blob/775b193/src/harLogger.ts#L22)
+[harUtils.ts:23](https://github.com/yaacov/harproxyserver/blob/db18573/src/harUtils.ts#L23)
+
+___
+
+### HarEntryParams
+
+Ƭ **HarEntryParams**: `Object`
+
+Type for the parameter object of the createHarEntryFromText function.
+
+#### Type declaration
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `baseUrl` | `string` | The base URL of the request (example: 'https://example.com'). |
+| `endpoint` | `string` | The endpoint of the request (example: '/book/story/?page=4'). |
+| `headers?` | `Header`[] | The response headers (default: an empty array). Optional. |
+| `mimeType?` | `string` | The MIME type of the response body (default: 'application/json'). Optional. |
+| `requestMethod?` | `string` | The HTTP method used for the request (default: 'GET'). Optional. |
+| `statusCode?` | `number` | The HTTP status code of the response (default: StatusCodes.OK). Optional. |
+| `text` | `string` | The text of the response body. |
+
+#### Defined in
+
+[harUtils.ts:48](https://github.com/yaacov/harproxyserver/blob/db18573/src/harUtils.ts#L48)
 
 ___
 
@@ -70,9 +96,33 @@ A promise that resolves to the HAR object.
 
 #### Defined in
 
-[harLogger.ts:11](https://github.com/yaacov/harproxyserver/blob/775b193/src/harLogger.ts#L11)
+[harUtils.ts:12](https://github.com/yaacov/harproxyserver/blob/db18573/src/harUtils.ts#L12)
 
 ## Functions
+
+### createHarEntryFromText
+
+▸ **createHarEntryFromText**(`params`): `Entry`
+
+Creates a HAR (HTTP Archive) entry object from the given input parameters.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `params` | [`HarEntryParams`](modules.md#harentryparams) | The parameters for creating the HAR entry. |
+
+#### Returns
+
+`Entry`
+
+The generated HAR entry object.
+
+#### Defined in
+
+[harUtils.ts:89](https://github.com/yaacov/harproxyserver/blob/db18573/src/harUtils.ts#L89)
+
+___
 
 ### findHarEntry
 
@@ -96,7 +146,7 @@ The matching HAR entry if found, or null if not found.
 
 #### Defined in
 
-[harLogger.ts:32](https://github.com/yaacov/harproxyserver/blob/775b193/src/harLogger.ts#L32)
+[harUtils.ts:33](https://github.com/yaacov/harproxyserver/blob/db18573/src/harUtils.ts#L33)
 
 ___
 
@@ -137,7 +187,7 @@ Express middleware
 
 #### Defined in
 
-[recordedHarMiddleware.ts:12](https://github.com/yaacov/harproxyserver/blob/775b193/src/recordedHarMiddleware.ts#L12)
+[recordedHarMiddleware.ts:12](https://github.com/yaacov/harproxyserver/blob/db18573/src/recordedHarMiddleware.ts#L12)
 
 ___
 
@@ -177,4 +227,4 @@ Custom proxy response handler.
 
 #### Defined in
 
-[recorderHarMiddleware.ts:17](https://github.com/yaacov/harproxyserver/blob/775b193/src/recorderHarMiddleware.ts#L17)
+[recorderHarMiddleware.ts:17](https://github.com/yaacov/harproxyserver/blob/db18573/src/recorderHarMiddleware.ts#L17)

@@ -1,3 +1,3 @@
-export * from './harLogger';
+export * from './harUtils';
 export * from './recordedHarMiddleware';
 export * from './recorderHarMiddleware';

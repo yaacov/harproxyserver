@@ -1,7 +1,9 @@
 {
     "name": "harproxyserver",
-    "version": "0.0.10",
+    "version": "0.0.11",
     "description": "A simple proxy server that records and plays back HTTP requests and responses in HAR format.",
+    "author": "Yaacov Zamir <kobi.zamir@gmail.com>",
+    "license": "Apache-2.0",
     "main": "dist/index.min.js",
     "bin": {
         "harProxyServer": "dist/harProxyServer.js"
@@ -29,8 +31,6 @@
         "http",
         "middleware"
     ],
-    "author": "Your Name Here",
-    "license": "MIT",
     "dependencies": {
         "express": "^4.18.2",
         "http-proxy-middleware": "^2.0.6",

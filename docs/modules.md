@@ -44,7 +44,7 @@ A promise that resolves to the updated HAR object.
 
 #### Defined in
 
-[harUtils.ts:23](https://github.com/yaacov/harproxyserver/blob/db18573/src/harUtils.ts#L23)
+[harUtils.ts:23](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/harUtils.ts#L23)
 
 ___
 
@@ -68,7 +68,7 @@ Type for the parameter object of the createHarEntryFromText function.
 
 #### Defined in
 
-[harUtils.ts:48](https://github.com/yaacov/harproxyserver/blob/db18573/src/harUtils.ts#L48)
+[harUtils.ts:48](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/harUtils.ts#L48)
 
 ___
 
@@ -96,7 +96,7 @@ A promise that resolves to the HAR object.
 
 #### Defined in
 
-[harUtils.ts:12](https://github.com/yaacov/harproxyserver/blob/db18573/src/harUtils.ts#L12)
+[harUtils.ts:12](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/harUtils.ts#L12)
 
 ## Functions
 
@@ -120,7 +120,7 @@ The generated HAR entry object.
 
 #### Defined in
 
-[harUtils.ts:89](https://github.com/yaacov/harproxyserver/blob/db18573/src/harUtils.ts#L89)
+[harUtils.ts:89](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/harUtils.ts#L89)
 
 ___
 
@@ -146,7 +146,7 @@ The matching HAR entry if found, or null if not found.
 
 #### Defined in
 
-[harUtils.ts:33](https://github.com/yaacov/harproxyserver/blob/db18573/src/harUtils.ts#L33)
+[harUtils.ts:33](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/harUtils.ts#L33)
 
 ___
 
@@ -187,7 +187,7 @@ Express middleware
 
 #### Defined in
 
-[recordedHarMiddleware.ts:12](https://github.com/yaacov/harproxyserver/blob/db18573/src/recordedHarMiddleware.ts#L12)
+[recordedHarMiddleware.ts:12](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/recordedHarMiddleware.ts#L12)
 
 ___
 
@@ -227,4 +227,4 @@ Custom proxy response handler.
 
 #### Defined in
 
-[recorderHarMiddleware.ts:17](https://github.com/yaacov/harproxyserver/blob/db18573/src/recorderHarMiddleware.ts#L17)
+[recorderHarMiddleware.ts:17](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/recorderHarMiddleware.ts#L17)

@@ -14,13 +14,13 @@ export const testHar: Har = {
           headers: [
             {
               name: 'User-Agent',
-              value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.12345.67 Safari/537.36'
-            }
+              value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.12345.67 Safari/537.36',
+            },
           ],
           queryString: [],
           cookies: [],
           headersSize: -1,
-          bodySize: -1
+          bodySize: -1,
         },
         response: {
           status: 200,
@@ -29,32 +29,32 @@ export const testHar: Har = {
           headers: [
             {
               name: 'Content-Type',
-              value: 'text/plain'
-            }
+              value: 'text/plain',
+            },
           ],
           cookies: [],
           content: {
             size: 13,
             mimeType: 'text/plain',
-            text: 'Test response'
+            text: 'Test response',
           },
           redirectURL: '',
           headersSize: -1,
-          bodySize: -1
+          bodySize: -1,
         },
         cache: {},
         timings: {
           wait: 0,
-          receive: 0
+          receive: 0,
         },
         serverIPAddress: '',
         connection: '',
-        comment: ''
-      }
+        comment: '',
+      },
     ],
     creator: {
       name: '',
       version: '',
     },
-  }
+  },
 };

@@ -86,25 +86,25 @@ app.get('/harproxyserver/version', (req, res) => {
 });
 
 // Set up the server based on the selected mode.
-switch(argv.mode) {
-case 'play': {
-  app.use(`/${argv.prefix}*`, recordedHarMiddleware(harFile, loadHarData, argv.prefix));
-  break;
-}
-case 'record': {
-  const onProxyResHandler = recorderHarMiddleware(harFile, appendEntryAndSaveHar, targetUrl);
+switch (argv.mode) {
+  case 'play': {
+    app.use(`/${argv.prefix}*`, recordedHarMiddleware(harFile, loadHarData, argv.prefix));
+    break;
+  }
+  case 'record': {
+    const onProxyResHandler = recorderHarMiddleware(harFile, appendEntryAndSaveHar, targetUrl);
 
-  app.use(
-    '/',
-    createProxyMiddleware({
-      target: targetUrl,
-      changeOrigin: true,
-      selfHandleResponse: true,
-      onProxyRes: onProxyResHandler,
-    })
-  );
-  break;
-}
+    app.use(
+      '/',
+      createProxyMiddleware({
+        target: targetUrl,
+        changeOrigin: true,
+        selfHandleResponse: true,
+        onProxyRes: onProxyResHandler,
+      }),
+    );
+    break;
+  }
 }
 
 // Create HTTP or HTTPS server based on the CLI options

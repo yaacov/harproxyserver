@@ -13,7 +13,7 @@ import type { AppendEntryAndSaveHarFn } from './harLogger';
  * @param {AppendEntryAndSaveHarFn} appendEntryAndSaveHar - Function to append the new entry and save the HAR file.
  * @param {string} targetUrl - The prefix for the HAR playback endpoint.
  * @returns {function} Custom proxy response handler.
-*/
+ */
 export const recorderHarMiddleware = (harFilePath: string, appendEntryAndSaveHar: AppendEntryAndSaveHarFn, targetUrl: string) => {
   return (proxyRes: http.IncomingMessage, req: express.Request, res: express.Response) => {
     const startTime = new Date().getTime();
@@ -130,7 +130,7 @@ function convertToHarHeaders(incomingHeaders: http.IncomingHttpHeaders): Header[
   const harHeaders: Header[] = [];
 
   Object.entries(incomingHeaders)
-    .filter(([, value]) => typeof value === "string" || Array.isArray(value))
+    .filter(([, value]) => typeof value === 'string' || Array.isArray(value))
     .forEach(([name, value]) => {
       harHeaders.push(...convertIncomingHeaderToHar(name, value as string | string[]));
     });

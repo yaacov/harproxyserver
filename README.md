@@ -25,7 +25,7 @@ npm install --location=global harproxyserver
 
 ## API
 
-harproxyserver / [Exports](doc/modules.md)
+harproxyserver / [Exports](docs/modules.md)
 
 ## Standalone Executable
 

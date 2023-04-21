@@ -47,21 +47,21 @@ export function findHarEntry(
 
   const normalizedMethod = method.toUpperCase();
   const normalizedEndpoint = endpoint || '/';
+
   const matchingEntry = harLog.entries.find((entry) => {
-    let urlObject;
-    try {
-      urlObject = new URL(entry.request.url);
-    } catch (error) {
+    const urlObject = getValidUrl(entry);
+    if (!urlObject) {
       return false; // skip this entry if URL is malformed
     }
-
+    
     let entryEndpoint = ignoreSearch ? urlObject.pathname : `${urlObject.pathname}${urlObject.search}`;
+
+    // Skip this entry if prefixToRemove is provided and the entry doesn't start with it
     if (prefixToRemove && !entryEndpoint.startsWith(prefixToRemove)) {
-      return false; // skip this entry if URL does not start with prefixToRemove
+      return false;
     }
-    if (prefixToRemove) {
-      entryEndpoint = entryEndpoint.slice(prefixToRemove.length);
-    }
+  
+    entryEndpoint = removePrefixIfNeeded(entryEndpoint, prefixToRemove);
 
     const endpointMatch = endpointRegex ? entryEndpoint.match(endpointRegex) : entryEndpoint === normalizedEndpoint;
     return entry.request.method.toUpperCase() === normalizedMethod && endpointMatch;
@@ -138,4 +138,31 @@ export function createHarEntryFromText(params: HarEntryParams): Entry {
       receive: 0,
     },
   };
+}
+
+/**
+ * Returns a URL object if the given entry has a valid URL, otherwise returns null.
+ * @param {Entry} entry - The HAR entry to check.
+ * @returns {URL | null} - A URL object if the URL is valid, null otherwise.
+ */
+function getValidUrl(entry: Entry): URL | null {
+  try {
+    const urlObject = new URL(entry.request.url);
+    return urlObject;
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Removes the prefix from the entry's endpoint if needed.
+ * @param {string} entryEndpoint - The entry's endpoint.
+ * @param {string | undefined} prefixToRemove - The prefix to remove from the endpoint.
+ * @returns {string} - The modified endpoint.
+ */
+function removePrefixIfNeeded(entryEndpoint: string, prefixToRemove: string | undefined): string {
+  if (prefixToRemove && entryEndpoint.startsWith(prefixToRemove)) {
+    return entryEndpoint.slice(prefixToRemove.length);
+  }
+  return entryEndpoint;
 }

@@ -59,7 +59,7 @@ export function findHarEntry(
     if (prefixToRemove && !entryEndpoint.startsWith(prefixToRemove)) {
       return false; // skip this entry if URL does not start with prefixToRemove
     }
-    if (prefixToRemove && entryEndpoint.startsWith(prefixToRemove)) {
+    if (prefixToRemove) {
       entryEndpoint = entryEndpoint.slice(prefixToRemove.length);
     }
 
@@ -74,25 +74,25 @@ export function findHarEntry(
  * Type for the parameter object of the createHarEntryFromText function.
  */
 export type HarEntryParams = {
-  // The base URL of the request (example: 'https://example.com').
+  /** The base URL of the request (example: 'https://example.com'). */
   baseUrl: string;
 
-  // The endpoint of the request (example: '/book/story/?page=4').
+  /** The endpoint of the request (example: '/book/story/?page=4'). */
   endpoint: string;
 
-  // The text of the response body.
+  /** The text of the response body. */
   text: string;
 
-  // The MIME type of the response body (default: 'application/json'). Optional.
+  /** The MIME type of the response body (default: 'application/json'). Optional. */
   mimeType?: string;
 
-  // The HTTP method used for the request (default: 'GET'). Optional.
+  /** The HTTP method used for the request (default: 'GET'). Optional. */
   requestMethod?: string;
 
-  // The HTTP status code of the response (default: StatusCodes.OK). Optional.
+  /** The HTTP status code of the response (default: StatusCodes.OK). Optional. */
   statusCode?: number;
 
-  // The response headers (default: an empty array). Optional.
+  /** The response headers (default: an empty array). Optional. */
   headers?: Header[];
 };
 

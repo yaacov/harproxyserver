@@ -23,24 +23,32 @@ export type LoadHarDataFn = (filePath: string) => Promise<Har>;
 export type AppendEntryAndSaveHarFn = (entry: Entry, filePath: string) => Promise<Har>;
 
 /**
- * Finds the HAR entry in the given log with the matching HTTP method, base URL, and query parameters.
+ * Finds the HAR entry in the given log with the matching HTTP method and endpoint.
  *
  * @param {Log} harLog - The HAR log to search through.
  * @param {string} method - The HTTP method of the desired entry.
- * @param {string} path - The base URL path (with search) of the desired entry (example: '/api?page=1').
+ * @param {string} endpoint - The endpoint (pathname and search) of the desired entry, e.g., "/users?id=123".
  * @returns {Entry | null} The matching HAR entry if found, or null if not found.
  */
-export function findHarEntry(harLog: Log, method: string, path: string): Entry | null {
-  for (const entry of harLog.entries) {
-    const url = new URL(entry.request.url);
-    const entryPath = `${url.pathname}${url.search}`;
-    const findPath = path || '/';
-    
-    if (entry.request.method === method && entryPath === findPath) {
-      return entry;
-    }
+export function findHarEntry(harLog: Log | undefined | null, method: string, endpoint: string): Entry | null {
+  if (!harLog) {
+    return null;
   }
-  return null;
+
+  const normalizedMethod = method.toUpperCase();
+  const normalizedEndpoint = endpoint || '/';
+  const matchingEntry = harLog.entries.find(entry => {
+    let urlObject;
+    try {
+      urlObject = new URL(entry.request.url);
+    } catch (error) {
+      return false; // skip this entry if URL is malformed
+    }
+    const entryEndpoint = `${urlObject.pathname}${urlObject.search}`;
+    return entry.request.method.toUpperCase() === normalizedMethod && entryEndpoint === normalizedEndpoint;
+  });
+
+  return matchingEntry || null;
 }
 
 /**

@@ -23,6 +23,28 @@ npm install --location=global harproxyserver
 
 # Usage
 
+## Standalone Executable
+
+Run the server using the harServer command:
+
+Start the server in play mode (default)
+
+``` bash
+harproxyserver -p 3000 -f recorded.har
+```
+
+Start the server in record mode
+
+``` bash
+harproxyserver -p 3000 -t http://example.com -f recorded.har -m record
+```
+
+Start the server with HTTPS
+
+``` bash
+harproxyserver -p 3000 -f recorded.har --tls --key-file server.key --cert-file serv
+```
+
 ## API
 
 Import the server and utility functions in your TypeScript project:
@@ -68,36 +90,6 @@ if (entry) {
 } else {
   console.log('Entry not found');
 }
-```
-
-## Standalone Executable
-
-Run the server using the harServer command:
-
-Start the server in play mode (default)
-
-``` bash
-harproxyserver -p 3000 -f recorded.har
-```
-
-Start the server in record mode
-
-``` bash
-harproxyserver -p 3000 -t http://example.com -f recorded.har -m record
-```
-
-Start the server with HTTPS
-
-``` bash
-harproxyserver -p 3000 -f recorded.har --tls --key-file server.key --cert-file serv
-```
-
-# In Your Project
-
-Import the server and utility functions in your project:
-
-``` ts
-import { findHarEntry, recordedHarMiddleware } from 'harproxyserver';
 ```
 
 # Command-Line Options

@@ -44,7 +44,7 @@ A promise that resolves to the updated HAR object.
 
 #### Defined in
 
-[harUtils.ts:23](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/harUtils.ts#L23)
+[harUtils.ts:23](https://github.com/yaacov/harserver/blob/1da76ea/src/harUtils.ts#L23)
 
 ___
 
@@ -56,19 +56,19 @@ Type for the parameter object of the createHarEntryFromText function.
 
 #### Type declaration
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `baseUrl` | `string` | The base URL of the request (example: 'https://example.com'). |
-| `endpoint` | `string` | The endpoint of the request (example: '/book/story/?page=4'). |
-| `headers?` | `Header`[] | The response headers (default: an empty array). Optional. |
-| `mimeType?` | `string` | The MIME type of the response body (default: 'application/json'). Optional. |
-| `requestMethod?` | `string` | The HTTP method used for the request (default: 'GET'). Optional. |
-| `statusCode?` | `number` | The HTTP status code of the response (default: StatusCodes.OK). Optional. |
-| `text` | `string` | The text of the response body. |
+| Name | Type |
+| :------ | :------ |
+| `baseUrl` | `string` |
+| `endpoint` | `string` |
+| `headers?` | `Header`[] |
+| `mimeType?` | `string` |
+| `requestMethod?` | `string` |
+| `statusCode?` | `number` |
+| `text` | `string` |
 
 #### Defined in
 
-[harUtils.ts:48](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/harUtils.ts#L48)
+[harUtils.ts:76](https://github.com/yaacov/harserver/blob/1da76ea/src/harUtils.ts#L76)
 
 ___
 
@@ -96,7 +96,7 @@ A promise that resolves to the HAR object.
 
 #### Defined in
 
-[harUtils.ts:12](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/harUtils.ts#L12)
+[harUtils.ts:12](https://github.com/yaacov/harserver/blob/1da76ea/src/harUtils.ts#L12)
 
 ## Functions
 
@@ -120,23 +120,26 @@ The generated HAR entry object.
 
 #### Defined in
 
-[harUtils.ts:89](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/harUtils.ts#L89)
+[harUtils.ts:105](https://github.com/yaacov/harserver/blob/1da76ea/src/harUtils.ts#L105)
 
 ___
 
 ### findHarEntry
 
-▸ **findHarEntry**(`harLog`, `method`, `baseUrl`): `Entry` \| ``null``
+▸ **findHarEntry**(`harLog`, `method`, `endpoint`, `endpointRegex?`, `ignoreSearch?`, `prefixToRemove?`): `Entry` \| ``null``
 
-Finds the HAR entry in the given log with the matching HTTP method, base URL, and query parameters.
+Finds the HAR entry in the given log with the matching HTTP method and endpoint.
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `harLog` | `Log` | The HAR log to search through. |
-| `method` | `string` | The HTTP method of the desired entry. |
-| `baseUrl` | `string` | The base URL of the desired entry. |
+| Name | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `harLog` | `undefined` \| ``null`` \| `Log` | `undefined` | The HAR log to search through. |
+| `method` | `string` | `undefined` | The HTTP method of the desired entry. |
+| `endpoint` | `string` | `undefined` | The endpoint (pathname and search) of the desired entry, e.g., "/users?id=123". |
+| `endpointRegex?` | `RegExp` | `undefined` | Optional regular expression to match the endpoint against. For example, to match endpoints that start with "/users" followed by a number, use `/^/users\d+/`. |
+| `ignoreSearch?` | `boolean` | `false` | Optional flag to ignore the search part of the URL when matching endpoints. |
+| `prefixToRemove?` | `string` | `undefined` | Optional prefix to remove from the beginning of the `entry.request.path` property before matching the endpoint. |
 
 #### Returns
 
@@ -146,7 +149,7 @@ The matching HAR entry if found, or null if not found.
 
 #### Defined in
 
-[harUtils.ts:33](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/harUtils.ts#L33)
+[harUtils.ts:36](https://github.com/yaacov/harserver/blob/1da76ea/src/harUtils.ts#L36)
 
 ___
 
@@ -187,7 +190,7 @@ Express middleware
 
 #### Defined in
 
-[recordedHarMiddleware.ts:12](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/recordedHarMiddleware.ts#L12)
+[recordedHarMiddleware.ts:12](https://github.com/yaacov/harserver/blob/1da76ea/src/recordedHarMiddleware.ts#L12)
 
 ___
 
@@ -227,4 +230,4 @@ Custom proxy response handler.
 
 #### Defined in
 
-[recorderHarMiddleware.ts:17](https://github.com/yaacov/harproxyserver/blob/a87ee99/src/recorderHarMiddleware.ts#L17)
+[recorderHarMiddleware.ts:17](https://github.com/yaacov/harserver/blob/1da76ea/src/recorderHarMiddleware.ts#L17)

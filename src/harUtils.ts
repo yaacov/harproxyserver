@@ -53,18 +53,18 @@ export function findHarEntry(
     if (!urlObject) {
       return false; // skip this entry if URL is malformed
     }
-    
-    let entryEndpoint = ignoreSearch ? urlObject.pathname : `${urlObject.pathname}${urlObject.search}`;
 
-    // Skip this entry if prefixToRemove is provided and the entry doesn't start with it
-    if (prefixToRemove && !entryEndpoint.startsWith(prefixToRemove)) {
-      return false;
-    }
-  
+    let entryEndpoint: string | null = ignoreSearch ? urlObject.pathname : `${urlObject.pathname}${urlObject.search}`;
+
     entryEndpoint = removePrefixIfNeeded(entryEndpoint, prefixToRemove);
+    if (!entryEndpoint) {
+      return false; // skip this entry if entryEndpoint is null (meaning it doesn't start with prefixToRemove)
+    }
 
+    const methodMatch = entry.request.method.toUpperCase() === normalizedMethod;
     const endpointMatch = endpointRegex ? entryEndpoint.match(endpointRegex) : entryEndpoint === normalizedEndpoint;
-    return entry.request.method.toUpperCase() === normalizedMethod && endpointMatch;
+
+    return methodMatch && endpointMatch;
   });
 
   return matchingEntry || null;
@@ -157,12 +157,15 @@ function getValidUrl(entry: Entry): URL | null {
 /**
  * Removes the prefix from the entry's endpoint if needed.
  * @param {string} entryEndpoint - The entry's endpoint.
- * @param {string | undefined} prefixToRemove - The prefix to remove from the endpoint.
- * @returns {string} - The modified endpoint.
+ * @param {string} prefixToRemove - The prefix to remove from the endpoint.
+ * @returns {string | null} - The modified endpoint or null if the entryEndpoint doesn't start with the prefix.
  */
-function removePrefixIfNeeded(entryEndpoint: string, prefixToRemove: string | undefined): string {
-  if (prefixToRemove && entryEndpoint.startsWith(prefixToRemove)) {
-    return entryEndpoint.slice(prefixToRemove.length);
+function removePrefixIfNeeded(entryEndpoint: string, prefixToRemove?: string): string | null {
+  if (prefixToRemove) {
+    if (entryEndpoint.startsWith(prefixToRemove)) {
+      return entryEndpoint.slice(prefixToRemove.length);
+    }
+    return null;
   }
   return entryEndpoint;
 }

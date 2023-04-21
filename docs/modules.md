@@ -44,7 +44,7 @@ A promise that resolves to the updated HAR object.
 
 #### Defined in
 
-[harUtils.ts:23](https://github.com/yaacov/harserver/blob/2c80ce6/src/harUtils.ts#L23)
+[harUtils.ts:23](https://github.com/yaacov/harserver/blob/66b70bd/src/harUtils.ts#L23)
 
 ___
 
@@ -68,7 +68,7 @@ Type for the parameter object of the createHarEntryFromText function.
 
 #### Defined in
 
-[harUtils.ts:76](https://github.com/yaacov/harserver/blob/2c80ce6/src/harUtils.ts#L76)
+[harUtils.ts:76](https://github.com/yaacov/harserver/blob/66b70bd/src/harUtils.ts#L76)
 
 ___
 
@@ -96,7 +96,7 @@ A promise that resolves to the HAR object.
 
 #### Defined in
 
-[harUtils.ts:12](https://github.com/yaacov/harserver/blob/2c80ce6/src/harUtils.ts#L12)
+[harUtils.ts:12](https://github.com/yaacov/harserver/blob/66b70bd/src/harUtils.ts#L12)
 
 ## Functions
 
@@ -120,7 +120,7 @@ The generated HAR entry object.
 
 #### Defined in
 
-[harUtils.ts:105](https://github.com/yaacov/harserver/blob/2c80ce6/src/harUtils.ts#L105)
+[harUtils.ts:105](https://github.com/yaacov/harserver/blob/66b70bd/src/harUtils.ts#L105)
 
 ___
 
@@ -149,7 +149,7 @@ The matching HAR entry if found, or null if not found.
 
 #### Defined in
 
-[harUtils.ts:36](https://github.com/yaacov/harserver/blob/2c80ce6/src/harUtils.ts#L36)
+[harUtils.ts:36](https://github.com/yaacov/harserver/blob/66b70bd/src/harUtils.ts#L36)
 
 ___
 
@@ -190,7 +190,7 @@ Express middleware
 
 #### Defined in
 
-[recordedHarMiddleware.ts:12](https://github.com/yaacov/harserver/blob/2c80ce6/src/recordedHarMiddleware.ts#L12)
+[recordedHarMiddleware.ts:12](https://github.com/yaacov/harserver/blob/66b70bd/src/recordedHarMiddleware.ts#L12)
 
 ___
 
@@ -230,4 +230,4 @@ Custom proxy response handler.
 
 #### Defined in
 
-[recorderHarMiddleware.ts:17](https://github.com/yaacov/harserver/blob/2c80ce6/src/recorderHarMiddleware.ts#L17)
+[recorderHarMiddleware.ts:17](https://github.com/yaacov/harserver/blob/66b70bd/src/recorderHarMiddleware.ts#L17)

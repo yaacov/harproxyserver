@@ -28,24 +28,43 @@ export type AppendEntryAndSaveHarFn = (entry: Entry, filePath: string) => Promis
  * @param {Log} harLog - The HAR log to search through.
  * @param {string} method - The HTTP method of the desired entry.
  * @param {string} endpoint - The endpoint (pathname and search) of the desired entry, e.g., "/users?id=123".
+ * @param {RegExp} [endpointRegex] - Optional regular expression to match the endpoint against. For example, to match endpoints that start with "/users" followed by a number, use `/^\/users\d+/`.
+ * @param {boolean} [ignoreSearch=false] - Optional flag to ignore the search part of the URL when matching endpoints.
+ * @param {string} [prefixToRemove] - Optional prefix to remove from the beginning of the `entry.request.path` property before matching the endpoint.
  * @returns {Entry | null} The matching HAR entry if found, or null if not found.
  */
-export function findHarEntry(harLog: Log | undefined | null, method: string, endpoint: string): Entry | null {
+export function findHarEntry(
+  harLog: Log | undefined | null,
+  method: string,
+  endpoint: string,
+  endpointRegex?: RegExp,
+  ignoreSearch = false,
+  prefixToRemove?: string,
+): Entry | null {
   if (!harLog) {
     return null;
   }
 
   const normalizedMethod = method.toUpperCase();
   const normalizedEndpoint = endpoint || '/';
-  const matchingEntry = harLog.entries.find(entry => {
+  const matchingEntry = harLog.entries.find((entry) => {
     let urlObject;
     try {
       urlObject = new URL(entry.request.url);
     } catch (error) {
       return false; // skip this entry if URL is malformed
     }
-    const entryEndpoint = `${urlObject.pathname}${urlObject.search}`;
-    return entry.request.method.toUpperCase() === normalizedMethod && entryEndpoint === normalizedEndpoint;
+
+    let entryEndpoint = ignoreSearch ? urlObject.pathname : `${urlObject.pathname}${urlObject.search}`;
+    if (prefixToRemove && !entryEndpoint.startsWith(prefixToRemove)) {
+      return false; // skip this entry if URL does not start with prefixToRemove
+    }
+    if (prefixToRemove && entryEndpoint.startsWith(prefixToRemove)) {
+      entryEndpoint = entryEndpoint.slice(prefixToRemove.length);
+    }
+
+    const endpointMatch = endpointRegex ? entryEndpoint.match(endpointRegex) : entryEndpoint === normalizedEndpoint;
+    return entry.request.method.toUpperCase() === normalizedMethod && endpointMatch;
   });
 
   return matchingEntry || null;

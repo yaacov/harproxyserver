@@ -25,10 +25,6 @@ npm install --location=global harproxyserver
 
 # Usage
 
-## API
-
-harproxyserver / [Exports](doc/modules.md)
-
 ## Standalone Executable
 
 Run the server using the harServer command:
@@ -51,12 +47,51 @@ Start the server with HTTPS
 harproxyserver -p 3000 -f recorded.har --tls --key-file server.key --cert-file serv
 ```
 
-# In Your Project
+## API
 
-Import the server and utility functions in your project:
+Import the server and utility functions in your TypeScript project:
 
-``` ts
+```ts
 import { findHarEntry, recordedHarMiddleware } from 'harproxyserver';
+```
+
+Example 1: Using findHarEntry to find a specific GET request in a HAR log:
+
+```ts
+const harLog = ... // retrieve HAR log
+const method = 'GET';
+const pathname = '/api';
+
+const entry = findHarEntry(harLog, method, pathname);
+
+if (entry) {
+  console.log(`Found entry with ID ${entry.id}`);
+} else {
+  console.log('Entry not found');
+}
+```
+
+Example 2: Using findHarEntry to find a POST request with specific query parameters:
+
+```ts
+const harLog = ... // retrieve HAR log
+const method = 'POST';
+const baseUrl = 'https://example.com/api';
+const queryParams = { q: 'search term', page: 1 };
+
+const url = new URL(baseUrl);
+for (const [key, value] of Object.entries(queryParams)) {
+  url.searchParams.set(key, value);
+}
+const pathnameWithParams = `${url.pathname}${url.search};
+
+const entry = findHarEntry(harLog, method, pathnameWithParams);
+
+if (entry) {
+  console.log(`Found entry with ID ${entry.id}`);
+} else {
+  console.log('Entry not found');
+}
 ```
 
 # Command-Line Options

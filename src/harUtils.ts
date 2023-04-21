@@ -59,9 +59,7 @@ export function findHarEntry(
     if (prefixToRemove && !entryEndpoint.startsWith(prefixToRemove)) {
       return false; // skip this entry if URL does not start with prefixToRemove
     }
-    if (prefixToRemove && entryEndpoint.startsWith(prefixToRemove)) {
-      entryEndpoint = entryEndpoint.slice(prefixToRemove.length);
-    }
+    entryEndpoint = prefixToRemove ? entryEndpoint.slice(prefixToRemove.length) : entryEndpoint;
 
     const endpointMatch = endpointRegex ? entryEndpoint.match(endpointRegex) : entryEndpoint === normalizedEndpoint;
     return entry.request.method.toUpperCase() === normalizedMethod && endpointMatch;

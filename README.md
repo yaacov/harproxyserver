@@ -58,9 +58,9 @@ Example 1: Using findHarEntry to find a specific GET request in a HAR log:
 ```ts
 const harLog = ... // retrieve HAR log
 const method = 'GET';
-const baseUrl = '/api';
+const pathname = '/api';
 
-const entry = findHarEntry(harLog, method, baseUrl);
+const entry = findHarEntry(harLog, method, pathname);
 
 if (entry) {
   console.log(`Found entry with ID ${entry.id}`);
@@ -81,9 +81,9 @@ const url = new URL(baseUrl);
 for (const [key, value] of Object.entries(queryParams)) {
   url.searchParams.set(key, value);
 }
-const baseUrlWithParams = url.pathname;
+const pathnameWithParams = `${url.pathname}${url.search};
 
-const entry = findHarEntry(harLog, method, baseUrlWithParams);
+const entry = findHarEntry(harLog, method, pathnameWithParams);
 
 if (entry) {
   console.log(`Found entry with ID ${entry.id}`);

@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 
 import { Entry, Har, Log } from 'har-format';
+import { filterHarLog } from './harUtils';
 
 /**
  * Reads a HAR file and returns the parsed HAR object.
@@ -21,6 +22,45 @@ export async function loadHarData(filePath: string): Promise<Har> {
 
   // On error return empty Har object
   return { log: harLog };
+}
+
+/**
+ * Loads a HAR file, filters it, and saves the filtered result to a new file.
+ *
+ * @param {string} inputFilePath - The path of the input HAR file to load and filter.
+ * @param {string} outputFilePath - The path of the output file to save the filtered HAR log.
+ * @param {string} method - The HTTP method to filter by.
+ * @param {string} endpoint - The endpoint (pathname and search) to filter by, e.g., "/users?id=123".
+ * @param {RegExp} [endpointRegex] - Optional regular expression to match the endpoint against.
+ * @param {boolean} [ignoreSearch=false] - Optional flag to ignore the search part of the URL when matching endpoints.
+ * @param {string} [prefixToRemove] - Optional prefix to remove from the beginning of the `entry.request.path` property before matching the endpoint.
+ * @returns {Promise<void>} A Promise that resolves when the filtered HAR log is saved to the output file, or rejects if there's an error.
+ */
+export async function filterAndSaveHarLog(
+  inputFilePath: string,
+  outputFilePath: string,
+  method: string,
+  endpoint: string,
+  endpointRegex?: RegExp,
+  ignoreSearch = false,
+  prefixToRemove?: string,
+): Promise<void> {
+  try {
+    // Load the HAR data from the input file
+    const harData = await loadHarData(inputFilePath);
+
+    // Filter the HAR log
+    const filteredLog = filterHarLog(harData.log, method, endpoint, endpointRegex, ignoreSearch, prefixToRemove);
+
+    // Save the filtered log to the output file
+    const filterdHarData = { ...harData, log: filteredLog };
+    await fs.writeFile(outputFilePath, JSON.stringify(filterdHarData, null, 2));
+
+    console.log('Filtered HAR log saved successfully.');
+  } catch (error) {
+    console.error('Error filtering and saving HAR log:', error);
+    throw error;
+  }
 }
 
 /**

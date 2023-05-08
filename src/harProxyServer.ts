@@ -11,7 +11,8 @@ import { readFileSync } from 'fs';
 import pkg from '../package.json';
 import { recordedHarMiddleware } from './recordedHarMiddleware';
 import { recorderHarMiddleware } from './recorderHarMiddleware';
-import { loadHarData, appendEntryAndSaveHar } from './harFileUtils';
+import { loadHarData, appendEntryAndSaveHar, filterAndSaveHarLog } from './harFileUtils';
+import { exit } from 'process';
 
 const argv = yargs(hideBin(process.argv))
   .options({
@@ -39,8 +40,8 @@ const argv = yargs(hideBin(process.argv))
     mode: {
       alias: 'm',
       type: 'string',
-      description: 'The mode to run the server in (play or record)',
-      choices: ['play', 'record'],
+      description: 'The mode to run the server in (play, record or filter)',
+      choices: ['play', 'record', 'filter'],
       default: 'play',
     },
     tls: {
@@ -55,6 +56,10 @@ const argv = yargs(hideBin(process.argv))
     'cert-file': {
       type: 'string',
       description: 'Path to the TLS certificate file',
+    },
+    'filter-endpoint-regexp': {
+      type: 'string',
+      description: 'RegExp to use when filtering a har file (filtered har file will include only matching endpoints)',
     },
   })
   .version('version', 'Show version and app information', `App: ${pkg.name}\nVersion: ${pkg.version}\nDescription: ${pkg.description}`)
@@ -89,6 +94,12 @@ app.get('/harproxyserver/version', (req, res) => {
 
 // Set up the server based on the selected mode.
 switch (argv.mode) {
+  case 'filter': {
+    const endpointRegex = RegExp(argv['filter-endpoint-regexp'] as string);
+    filterAndSaveHarLog(harFile, `${harFile}.filtered.har`, 'GET', '', endpointRegex, true).then(() => exit());
+
+    break;
+  }
   case 'play': {
     app.use(`/${argv.prefix}*`, recordedHarMiddleware(harFile, loadHarData, argv.prefix));
     break;

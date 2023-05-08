@@ -71,6 +71,61 @@ export function findHarEntry(
 }
 
 /**
+ * Filters a HAR log and returns a filtered HAR log based on the specified inputs.
+ *
+ * @param {Log | undefined | null} harLog - The HAR log to filter.
+ * @param {string} method - The HTTP method to filter by.
+ * @param {string} endpoint - The endpoint (pathname and search) to filter by, e.g., "/users?id=123".
+ * @param {RegExp} [endpointRegex] - Optional regular expression to match the endpoint against.
+ * @param {boolean} [ignoreSearch=false] - Optional flag to ignore the search part of the URL when matching endpoints.
+ * @param {string} [prefixToRemove] - Optional prefix to remove from the beginning of the `entry.request.path` property before matching the endpoint.
+ * @returns {Log} The filtered HAR log. If no matching entries are found, an empty log will be returned.
+ */
+export function filterHarLog(
+  harLog: Log | undefined | null,
+  method: string,
+  endpoint: string,
+  endpointRegex?: RegExp,
+  ignoreSearch = false,
+  prefixToRemove?: string,
+): Log {
+  const filteredLog: Log = {
+    ...(harLog as Log),
+    entries: [],
+  };
+
+  if (!harLog) {
+    return filteredLog;
+  }
+
+  const normalizedMethod = method.toUpperCase();
+  const normalizedEndpoint = endpoint || '/';
+
+  for (const entry of harLog.entries) {
+    const urlObject = getValidUrl(entry);
+    if (!urlObject) {
+      continue; // skip this entry if URL is malformed
+    }
+
+    let entryEndpoint: string | null = ignoreSearch ? urlObject.pathname : `${urlObject.pathname}${urlObject.search}`;
+
+    entryEndpoint = removePrefixIfNeeded(entryEndpoint, prefixToRemove);
+    if (!entryEndpoint) {
+      continue; // skip this entry if entryEndpoint is null (meaning it doesn't start with prefixToRemove)
+    }
+
+    const methodMatch = entry.request.method.toUpperCase() === normalizedMethod;
+    const endpointMatch = endpointRegex ? entryEndpoint.match(endpointRegex) : entryEndpoint === normalizedEndpoint;
+
+    if (methodMatch && endpointMatch) {
+      filteredLog.entries.push(entry);
+    }
+  }
+
+  return filteredLog;
+}
+
+/**
  * Type for the parameter object of the createHarEntryFromText function.
  */
 export type HarEntryParams = {

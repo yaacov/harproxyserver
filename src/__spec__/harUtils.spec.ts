@@ -1,4 +1,4 @@
-import { findHarEntry } from '../harUtils';
+import { filterHarLog, findHarEntry } from '../harUtils';
 import { harUtilsData as har } from './harUtils.data';
 
 describe('findHarEntry', () => {
@@ -37,5 +37,41 @@ describe('findHarEntry', () => {
 
   it('should return null when no matching entry is found', () => {
     expect(findHarEntry(har.log, 'PUT', '/users?id=123')).toBeNull();
+  });
+});
+
+describe('filterHarLog', () => {
+  it('should return a filtered HAR log with matching entries', () => {
+    const filteredLog = filterHarLog(har.log, 'GET', '/users?id=123');
+
+    expect(filteredLog.entries.length).toBe(1);
+    expect(filteredLog.entries[0].request.method).toBe('GET');
+    expect(filteredLog.entries[0].request.url).toBe('https://example.com/users?id=123');
+  });
+
+  it('should return an empty log if no matching entries are found', () => {
+    const filteredLog = filterHarLog(har.log, 'POST', '/users');
+
+    expect(filteredLog.entries.length).toBe(0);
+  });
+
+  it('should return an empty log if the input HAR log is null', () => {
+    const filteredLog = filterHarLog(null, 'GET', '/users');
+
+    expect(filteredLog.entries.length).toBe(0);
+  });
+
+  it('should return an empty log if the input HAR log is undefined', () => {
+    const filteredLog = filterHarLog(undefined, 'GET', '/users');
+
+    expect(filteredLog.entries.length).toBe(0);
+  });
+
+  it('should return a filtered HAR log with matching entries when ignoreSearch is true', () => {
+    const filteredLog = filterHarLog(har.log, 'GET', '/users', undefined, true);
+
+    expect(filteredLog.entries.length).toBe(2);
+    expect(filteredLog.entries[0].request.method).toBe('GET');
+    expect(filteredLog.entries[0].request.url).toBe('https://example.com/users?id=123');
   });
 });

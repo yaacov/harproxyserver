@@ -13,6 +13,7 @@
 ### Functions
 
 - [createHarEntryFromText](modules.md#createharentryfromtext)
+- [filterHarLog](modules.md#filterharlog)
 - [findHarEntry](modules.md#findharentry)
 - [recordedHarMiddleware](modules.md#recordedharmiddleware)
 - [recorderHarMiddleware](modules.md#recorderharmiddleware)
@@ -44,7 +45,7 @@ A promise that resolves to the updated HAR object.
 
 #### Defined in
 
-[harUtils.ts:23](https://github.com/yaacov/harserver/blob/66b70bd/src/harUtils.ts#L23)
+[harUtils.ts:22](https://github.com/yaacov/harserver/blob/83d0c89/src/harUtils.ts#L22)
 
 ___
 
@@ -68,7 +69,7 @@ Type for the parameter object of the createHarEntryFromText function.
 
 #### Defined in
 
-[harUtils.ts:76](https://github.com/yaacov/harserver/blob/66b70bd/src/harUtils.ts#L76)
+[harUtils.ts:149](https://github.com/yaacov/harserver/blob/83d0c89/src/harUtils.ts#L149)
 
 ___
 
@@ -96,7 +97,7 @@ A promise that resolves to the HAR object.
 
 #### Defined in
 
-[harUtils.ts:12](https://github.com/yaacov/harserver/blob/66b70bd/src/harUtils.ts#L12)
+[harUtils.ts:11](https://github.com/yaacov/harserver/blob/83d0c89/src/harUtils.ts#L11)
 
 ## Functions
 
@@ -120,7 +121,37 @@ The generated HAR entry object.
 
 #### Defined in
 
-[harUtils.ts:105](https://github.com/yaacov/harserver/blob/66b70bd/src/harUtils.ts#L105)
+[harUtils.ts:178](https://github.com/yaacov/harserver/blob/83d0c89/src/harUtils.ts#L178)
+
+___
+
+### filterHarLog
+
+▸ **filterHarLog**(`harLog`, `method`, `endpoint`, `endpointRegex?`, `ignoreSearch?`, `prefixToRemove?`, `sanitize?`): `Log`
+
+Filters a HAR log and returns a filtered HAR log based on the specified inputs.
+
+#### Parameters
+
+| Name | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `harLog` | `undefined` \| ``null`` \| `Log` | `undefined` | The HAR log to filter. |
+| `method` | `string` | `undefined` | The HTTP method to filter by. |
+| `endpoint` | `string` | `undefined` | The endpoint (pathname and search) to filter by, e.g., "/users?id=123". |
+| `endpointRegex?` | `RegExp` | `undefined` | Optional regular expression to match the endpoint against. |
+| `ignoreSearch?` | `boolean` | `false` | Optional flag to ignore the search part of the URL when matching endpoints. |
+| `prefixToRemove?` | `string` | `undefined` | Optional prefix to remove from the beginning of the `entry.request.path` property before matching the endpoint. |
+| `sanitize?` | `boolean` | `undefined` | Optional remove headers and cookies from the har file. |
+
+#### Returns
+
+`Log`
+
+The filtered HAR log. If no matching entries are found, an empty log will be returned.
+
+#### Defined in
+
+[harUtils.ts:84](https://github.com/yaacov/harserver/blob/83d0c89/src/harUtils.ts#L84)
 
 ___
 
@@ -149,7 +180,7 @@ The matching HAR entry if found, or null if not found.
 
 #### Defined in
 
-[harUtils.ts:36](https://github.com/yaacov/harserver/blob/66b70bd/src/harUtils.ts#L36)
+[harUtils.ts:35](https://github.com/yaacov/harserver/blob/83d0c89/src/harUtils.ts#L35)
 
 ___
 
@@ -190,7 +221,7 @@ Express middleware
 
 #### Defined in
 
-[recordedHarMiddleware.ts:12](https://github.com/yaacov/harserver/blob/66b70bd/src/recordedHarMiddleware.ts#L12)
+[recordedHarMiddleware.ts:12](https://github.com/yaacov/harserver/blob/83d0c89/src/recordedHarMiddleware.ts#L12)
 
 ___
 
@@ -230,4 +261,4 @@ Custom proxy response handler.
 
 #### Defined in
 
-[recorderHarMiddleware.ts:17](https://github.com/yaacov/harserver/blob/66b70bd/src/recorderHarMiddleware.ts#L17)
+[recorderHarMiddleware.ts:16](https://github.com/yaacov/harserver/blob/83d0c89/src/recorderHarMiddleware.ts#L16)

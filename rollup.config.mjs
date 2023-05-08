@@ -4,7 +4,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import shebang from 'rollup-plugin-preserve-shebang';
-import json from "@rollup/plugin-json";
+import json from '@rollup/plugin-json';
 
 export default [
   {
@@ -14,7 +14,7 @@ export default [
     output: [
       {
         dir: 'dist',
-        format: 'es',
+        format: 'cjs',
         entryFileNames: '[name].min.js',
         sourcemap: true,
         plugins: [terser()],
@@ -25,9 +25,9 @@ export default [
       nodeResolve({ preferBuiltins: true, mainFields: ['browser'] }),
       resolve(),
       commonjs(),
-      typescript({ module: "esnext" }),
+      typescript({ module: 'esnext' }),
     ],
-    external: ['express', 'http-proxy-middleware', 'http-status-codes', 'yargs', 'yargs-parser'],
+    external: ['express', 'http-proxy-middleware', 'yargs', 'yargs-parser'],
   },
   {
     input: {
@@ -45,11 +45,11 @@ export default [
       nodeResolve({ preferBuiltins: true }),
       resolve(),
       commonjs(),
-      typescript({ module: "esnext" }),
+      typescript({ module: 'esnext' }),
       shebang({
-        shebang: '#!/usr/bin/env node'
+        shebang: '#!/usr/bin/env node',
       }),
     ],
-    external: ['express', 'http-proxy-middleware', 'http-status-codes', 'yargs', 'yargs-parser'],
-  }
+    external: ['express', 'http-proxy-middleware', 'yargs', 'yargs-parser'],
+  },
 ];

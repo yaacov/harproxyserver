@@ -2,7 +2,6 @@ import * as http from 'http';
 
 import type express from 'express';
 import type { Entry, Header } from 'har-format';
-import { StatusCodes } from 'http-status-codes';
 
 import { createHarEntryFromText, type AppendEntryAndSaveHarFn, HarEntryParams } from './harUtils';
 
@@ -48,7 +47,7 @@ function createHarEntry(targetUrl: string, proxyRes: http.IncomingMessage, req: 
     text: '',
     mimeType: proxyRes.headers['content-type'] || 'text/plain',
     requestMethod: req.method,
-    statusCode: proxyRes.statusCode || StatusCodes.BAD_GATEWAY,
+    statusCode: proxyRes.statusCode || 502,
     headers: convertToHarHeaders(proxyRes.headers),
   };
 

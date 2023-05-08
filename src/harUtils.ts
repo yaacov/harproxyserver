@@ -1,5 +1,4 @@
 import { Entry, Har, Header, Log } from 'har-format';
-import { StatusCodes } from 'http-status-codes';
 
 /**
  * A type representing a function that retrieves a HAR object from a given file.
@@ -191,7 +190,7 @@ export function createHarEntryFromText(params: HarEntryParams): Entry {
       bodySize: -1,
     },
     response: {
-      status: params.statusCode || StatusCodes.OK,
+      status: params.statusCode || 200,
       statusText: '',
       httpVersion: 'HTTP/1.1',
       cookies: [],

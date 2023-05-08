@@ -61,6 +61,10 @@ const argv = yargs(hideBin(process.argv))
       type: 'string',
       description: 'RegExp to use when filtering a har file (filtered har file will include only matching endpoints)',
     },
+    sanitize: {
+      type: 'boolean',
+      description: 'Remove headers and cookies when filtering a har file',
+    },
   })
   .version('version', 'Show version and app information', `App: ${pkg.name}\nVersion: ${pkg.version}\nDescription: ${pkg.description}`)
   .help('h')
@@ -96,7 +100,7 @@ app.get('/harproxyserver/version', (req, res) => {
 switch (argv.mode) {
   case 'filter': {
     const endpointRegex = RegExp(argv['filter-endpoint-regexp'] as string);
-    filterAndSaveHarLog(harFile, `${harFile}.filtered.har`, 'GET', '', endpointRegex, true).then(() => exit());
+    filterAndSaveHarLog(harFile, `${harFile}.filtered.har`, 'GET', '', endpointRegex, true, undefined, argv.sanitize).then(() => exit());
 
     break;
   }

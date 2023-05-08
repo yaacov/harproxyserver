@@ -13,6 +13,7 @@ HAR Proxy Server is a simple proxy server that records and plays back HTTP reque
 - Middleware support for Express.js.
 - Command-line interface for easy configuration
 - Utility to filter HAR files to extract only required HTTP/S requiests.
+- Utility to sanitize headers and cookies from har files
 
 ## Installation
 
@@ -113,6 +114,7 @@ The available options for this tool are:
   - --key-file <file>: Path to the TLS private key file (required when using --tls).
   - --cert-file <file>: Path to the TLS certificate file (required when using --tls).
   - --filter-endpoint-regexp <string>: RegExp to use when filtering a har file (filtered har file will include only matching endpoints)
+  - --sanitize <boolean>: Remove headers and cookies when filtering a har file
 
 # License
 

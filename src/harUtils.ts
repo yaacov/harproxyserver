@@ -79,6 +79,7 @@ export function findHarEntry(
  * @param {RegExp} [endpointRegex] - Optional regular expression to match the endpoint against.
  * @param {boolean} [ignoreSearch=false] - Optional flag to ignore the search part of the URL when matching endpoints.
  * @param {string} [prefixToRemove] - Optional prefix to remove from the beginning of the `entry.request.path` property before matching the endpoint.
+ * @param {boolean} [sanitize] - Optional remove headers and cookies from the har file.
  * @returns {Log} The filtered HAR log. If no matching entries are found, an empty log will be returned.
  */
 export function filterHarLog(
@@ -88,6 +89,7 @@ export function filterHarLog(
   endpointRegex?: RegExp,
   ignoreSearch = false,
   prefixToRemove?: string,
+  sanitize?: boolean,
 ): Log {
   const filteredLog: Log = {
     ...(harLog as Log),
@@ -118,7 +120,23 @@ export function filterHarLog(
     const endpointMatch = endpointRegex ? entryEndpoint.match(endpointRegex) : entryEndpoint === normalizedEndpoint;
 
     if (methodMatch && endpointMatch) {
-      filteredLog.entries.push(entry);
+      if (sanitize) {
+        filteredLog.entries.push({
+          ...entry,
+          request: {
+            ...entry.request,
+            headers: [],
+            cookies: [],
+          },
+          response: {
+            ...entry.response,
+            headers: [],
+            cookies: [],
+          },
+        });
+      } else {
+        filteredLog.entries.push(entry);
+      }
     }
   }
 

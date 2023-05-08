@@ -34,6 +34,7 @@ export async function loadHarData(filePath: string): Promise<Har> {
  * @param {RegExp} [endpointRegex] - Optional regular expression to match the endpoint against.
  * @param {boolean} [ignoreSearch=false] - Optional flag to ignore the search part of the URL when matching endpoints.
  * @param {string} [prefixToRemove] - Optional prefix to remove from the beginning of the `entry.request.path` property before matching the endpoint.
+ * @param {boolean} [sanitize] - Optional remove headers and cookies from the har file.
  * @returns {Promise<void>} A Promise that resolves when the filtered HAR log is saved to the output file, or rejects if there's an error.
  */
 export async function filterAndSaveHarLog(
@@ -44,13 +45,14 @@ export async function filterAndSaveHarLog(
   endpointRegex?: RegExp,
   ignoreSearch = false,
   prefixToRemove?: string,
+  sanitize?: boolean,
 ): Promise<void> {
   try {
     // Load the HAR data from the input file
     const harData = await loadHarData(inputFilePath);
 
     // Filter the HAR log
-    const filteredLog = filterHarLog(harData.log, method, endpoint, endpointRegex, ignoreSearch, prefixToRemove);
+    const filteredLog = filterHarLog(harData.log, method, endpoint, endpointRegex, ignoreSearch, prefixToRemove, sanitize);
 
     // Save the filtered log to the output file
     const filterdHarData = { ...harData, log: filteredLog };

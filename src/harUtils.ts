@@ -123,6 +123,7 @@ export function filterHarLog(
       if (sanitize) {
         filteredLog.entries.push({
           ...entry,
+          _initiator: undefined,
           request: {
             ...entry.request,
             headers: [],

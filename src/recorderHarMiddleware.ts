@@ -1,9 +1,9 @@
-import * as http from 'http';
-
 import type express from 'express';
 import type { Entry, Header } from 'har-format';
+import * as http from 'http';
+import zlib from 'node:zlib';
 
-import { createHarEntryFromText, type AppendEntryAndSaveHarFn, HarEntryParams } from './harUtils';
+import { HarEntryParams, createHarEntryFromText, type AppendEntryAndSaveHarFn } from './harUtils';
 
 /**
  * Middleware factory that records an HTTP request-response transaction and saves it in a HAR file.
@@ -19,6 +19,11 @@ export const recorderHarMiddleware = (harFilePath: string, appendEntryAndSaveHar
     const newRequestEntry: Entry = createHarEntry(targetUrl, proxyRes, req);
 
     proxyRes.on('data', (chunk: string) => {
+      const isGzip = proxyRes.headers['content-encoding'] === 'gzip';
+      if (isGzip) {
+        chunk = zlib.gunzipSync(Buffer.from(chunk, 'base64')).toString('utf8');
+      }
+
       updateEntryOnData(newRequestEntry, startTime, chunk);
     });
 

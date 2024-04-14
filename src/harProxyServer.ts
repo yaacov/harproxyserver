@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
 import express from 'express';
+import { readFileSync } from 'fs';
+import { createServer as createHttpServer } from 'http';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createServer as createHttpsServer } from 'https';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { createServer as createHttpServer } from 'http';
-import { createServer as createHttpsServer } from 'https';
-import { readFileSync } from 'fs';
 
+import { exit } from 'process';
 import pkg from '../package.json';
+import { appendEntryAndSaveHar, filterAndSaveHarLog, loadHarData } from './harFileUtils';
 import { recordedHarMiddleware } from './recordedHarMiddleware';
 import { recorderHarMiddleware } from './recorderHarMiddleware';
-import { loadHarData, appendEntryAndSaveHar, filterAndSaveHarLog } from './harFileUtils';
-import { exit } from 'process';
 
 const argv = yargs(hideBin(process.argv))
   .options({
@@ -64,6 +64,10 @@ const argv = yargs(hideBin(process.argv))
     sanitize: {
       type: 'boolean',
       description: 'Remove headers and cookies when filtering a har file',
+    },
+    secure: {
+      type: 'boolean',
+      description: 'Enable/disable SSL certificate verification',
     },
   })
   .version('version', 'Show version and app information', `App: ${pkg.name}\nVersion: ${pkg.version}\nDescription: ${pkg.description}`)
@@ -118,6 +122,7 @@ switch (argv.mode) {
         changeOrigin: true,
         selfHandleResponse: true,
         onProxyRes: onProxyResHandler,
+        secure: argv.secure,
       }),
     );
     break;

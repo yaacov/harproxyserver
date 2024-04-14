@@ -22,13 +22,13 @@
 
 ### AppendEntryAndSaveHarFn
 
-Ƭ **AppendEntryAndSaveHarFn**: (`entry`: `Entry`, `filePath`: `string`) => `Promise`<`Har`\>
+Ƭ **AppendEntryAndSaveHarFn**: (`entry`: `Entry`, `filePath`: `string`) => `Promise`\<`Har`\>
+
+A type representing a function that sets a new HAR entry and saves it to a given file.
 
 #### Type declaration
 
-▸ (`entry`, `filePath`): `Promise`<`Har`\>
-
-A type representing a function that sets a new HAR entry and saves it to a given file.
+▸ (`entry`, `filePath`): `Promise`\<`Har`\>
 
 ##### Parameters
 
@@ -39,13 +39,11 @@ A type representing a function that sets a new HAR entry and saves it to a given
 
 ##### Returns
 
-`Promise`<`Har`\>
-
-A promise that resolves to the updated HAR object.
+`Promise`\<`Har`\>
 
 #### Defined in
 
-[harUtils.ts:22](https://github.com/yaacov/harserver/blob/83d0c89/src/harUtils.ts#L22)
+[harUtils.ts:22](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/harUtils.ts#L22)
 
 ___
 
@@ -69,19 +67,19 @@ Type for the parameter object of the createHarEntryFromText function.
 
 #### Defined in
 
-[harUtils.ts:149](https://github.com/yaacov/harserver/blob/83d0c89/src/harUtils.ts#L149)
+[harUtils.ts:149](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/harUtils.ts#L149)
 
 ___
 
 ### LoadHarDataFn
 
-Ƭ **LoadHarDataFn**: (`filePath`: `string`) => `Promise`<`Har`\>
+Ƭ **LoadHarDataFn**: (`filePath`: `string`) => `Promise`\<`Har`\>
+
+A type representing a function that retrieves a HAR object from a given file.
 
 #### Type declaration
 
-▸ (`filePath`): `Promise`<`Har`\>
-
-A type representing a function that retrieves a HAR object from a given file.
+▸ (`filePath`): `Promise`\<`Har`\>
 
 ##### Parameters
 
@@ -91,13 +89,11 @@ A type representing a function that retrieves a HAR object from a given file.
 
 ##### Returns
 
-`Promise`<`Har`\>
-
-A promise that resolves to the HAR object.
+`Promise`\<`Har`\>
 
 #### Defined in
 
-[harUtils.ts:11](https://github.com/yaacov/harserver/blob/83d0c89/src/harUtils.ts#L11)
+[harUtils.ts:11](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/harUtils.ts#L11)
 
 ## Functions
 
@@ -121,7 +117,7 @@ The generated HAR entry object.
 
 #### Defined in
 
-[harUtils.ts:178](https://github.com/yaacov/harserver/blob/83d0c89/src/harUtils.ts#L178)
+[harUtils.ts:178](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/harUtils.ts#L178)
 
 ___
 
@@ -151,7 +147,7 @@ The filtered HAR log. If no matching entries are found, an empty log will be ret
 
 #### Defined in
 
-[harUtils.ts:84](https://github.com/yaacov/harserver/blob/83d0c89/src/harUtils.ts#L84)
+[harUtils.ts:84](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/harUtils.ts#L84)
 
 ___
 
@@ -180,13 +176,13 @@ The matching HAR entry if found, or null if not found.
 
 #### Defined in
 
-[harUtils.ts:35](https://github.com/yaacov/harserver/blob/83d0c89/src/harUtils.ts#L35)
+[harUtils.ts:35](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/harUtils.ts#L35)
 
 ___
 
 ### recordedHarMiddleware
 
-▸ **recordedHarMiddleware**(`harFilePath`, `getHar`, `prefix`): (`req`: `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\>, `res`: `Response`<`any`, `Record`<`string`, `any`\>\>, `next`: `NextFunction`) => `Promise`<`void`\>
+▸ **recordedHarMiddleware**(`harFilePath`, `getHar`, `prefix`): (`req`: `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\>, `res`: `Response`\<`any`, `Record`\<`string`, `any`\>\>, `next`: `NextFunction`) => `Promise`\<`void`\>
 
 A middleware factory that reads the HAR file and returns the body of the recorded request
 based on the path and method.
@@ -205,29 +201,29 @@ based on the path and method.
 
 Express middleware
 
-▸ (`req`, `res`, `next`): `Promise`<`void`\>
+▸ (`req`, `res`, `next`): `Promise`\<`void`\>
 
 ##### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `req` | `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\> |
-| `res` | `Response`<`any`, `Record`<`string`, `any`\>\> |
+| `req` | `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\> |
+| `res` | `Response`\<`any`, `Record`\<`string`, `any`\>\> |
 | `next` | `NextFunction` |
 
 ##### Returns
 
-`Promise`<`void`\>
+`Promise`\<`void`\>
 
 #### Defined in
 
-[recordedHarMiddleware.ts:12](https://github.com/yaacov/harserver/blob/83d0c89/src/recordedHarMiddleware.ts#L12)
+[recordedHarMiddleware.ts:12](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/recordedHarMiddleware.ts#L12)
 
 ___
 
 ### recorderHarMiddleware
 
-▸ **recorderHarMiddleware**(`harFilePath`, `appendEntryAndSaveHar`, `targetUrl`): (`proxyRes`: `IncomingMessage`, `req`: `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\>, `res`: `Response`<`any`, `Record`<`string`, `any`\>\>) => `void`
+▸ **recorderHarMiddleware**(`harFilePath`, `appendEntryAndSaveHar`, `targetUrl`): (`proxyRes`: `IncomingMessage`, `req`: `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\>, `res`: `Response`\<`any`, `Record`\<`string`, `any`\>\>) => `void`
 
 Middleware factory that records an HTTP request-response transaction and saves it in a HAR file.
 
@@ -252,8 +248,8 @@ Custom proxy response handler.
 | Name | Type |
 | :------ | :------ |
 | `proxyRes` | `IncomingMessage` |
-| `req` | `Request`<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`<`string`, `any`\>\> |
-| `res` | `Response`<`any`, `Record`<`string`, `any`\>\> |
+| `req` | `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\> |
+| `res` | `Response`\<`any`, `Record`\<`string`, `any`\>\> |
 
 ##### Returns
 
@@ -261,4 +257,4 @@ Custom proxy response handler.
 
 #### Defined in
 
-[recorderHarMiddleware.ts:16](https://github.com/yaacov/harserver/blob/83d0c89/src/recorderHarMiddleware.ts#L16)
+[recorderHarMiddleware.ts:16](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/recorderHarMiddleware.ts#L16)

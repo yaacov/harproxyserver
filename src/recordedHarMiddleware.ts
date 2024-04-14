@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import type { LoadHarDataFn } from './harUtils';
 import { findHarEntry } from './harUtils';
 
@@ -13,7 +13,7 @@ export const recordedHarMiddleware = (harFilePath: string, getHar: LoadHarDataFn
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const har = await getHar(harFilePath);
-      const baseUrl = req.baseUrl.slice(prefix.length); // remove prefix
+      const baseUrl = req.originalUrl.slice(prefix.length); // remove prefix
       const method = req.method;
 
       const recordedEntry = findHarEntry(har.log, method, baseUrl);

@@ -51,7 +51,19 @@ Filter HAR file, to return only requests containing "forklift.konveyor.io" or "f
 in the URL.
 
 ``` bash
-node dist/harProxyServer.js -m filter -f recorded.har --filter-endpoint-regexp "forklift.konveyor.io|forklift-console-plugin"
+harproxyserver -m filter -f recorded.har --filter-endpoint-regexp "forklift.konveyor.io|forklift-console-plugin"
+```
+
+## Development build
+
+Before running the code from source, compile it using, `npm run build`, the compiled sources will be added to the `dist` directory.
+
+``` bash
+# Compile development code
+npm run build
+
+# Run development code
+node dist/harProxyServer.js [options ...]
 ```
 
 ## API
@@ -115,6 +127,7 @@ The available options for this tool are:
   - --cert-file <file>: Path to the TLS certificate file (required when using --tls).
   - --filter-endpoint-regexp <string>: RegExp to use when filtering a har file (filtered har file will include only matching endpoints)
   - --sanitize <boolean>: Remove headers and cookies when filtering a har file
+  - --secure <boolean>: Enable/disable SSL certificate verification
 
 # License
 

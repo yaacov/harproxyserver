@@ -121,7 +121,9 @@ switch (argv.mode) {
         target: targetUrl,
         changeOrigin: true,
         selfHandleResponse: true,
-        onProxyRes: onProxyResHandler,
+        on: {
+          proxyRes: onProxyResHandler,
+        },
         secure: argv.secure,
       }),
     );

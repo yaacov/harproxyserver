@@ -21,7 +21,24 @@ export const recordedHarMiddleware = (harFilePath: string, getHar: LoadHarDataFn
       if (recordedEntry) {
         const { status, content } = recordedEntry.response;
         res.status(status).set('Content-Type', content.mimeType);
-        res.send(content.text);
+        if (content.text == undefined) {
+          console.error(`HAR entry has no body`);
+          return next();
+        }
+        switch (content.encoding) {
+          case undefined: {
+            res.send(content.text);
+            break;
+          }
+          case 'base64': {
+            res.send(Buffer.from(content.text, 'base64'));
+            break;
+          }
+          default: {
+            console.error(`Unknown .content.encoding in HAR entry: ${content.encoding}`);
+            return next();
+          }
+        }
       } else {
         return next();
       }

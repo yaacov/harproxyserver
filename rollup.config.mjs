@@ -15,7 +15,7 @@ export default [
       {
         dir: 'dist',
         format: 'cjs',
-        entryFileNames: '[name].min.js',
+        entryFileNames: '[name].js',
         sourcemap: true,
         plugins: [terser()],
       },

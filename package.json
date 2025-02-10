@@ -12,7 +12,7 @@
         "dist"
     ],
     "exports": {
-        ".": "./dist/index.min.js",
+        ".": "./dist/index.js",
         "./harProxyServer": "./dist/harProxyServer.js"
     },
     "scripts": {

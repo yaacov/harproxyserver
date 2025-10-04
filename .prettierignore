@@ -1,0 +1,6 @@
+node_modules
+dist
+coverage
+*.har
+test-output-e2e
+.husky

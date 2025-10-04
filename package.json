@@ -1,6 +1,7 @@
 {
     "name": "harproxyserver",
     "version": "0.0.22",
+    "type": "module",
     "description": "A simple proxy server that records and plays back HTTP requests and responses in HAR format.",
     "author": "Yaacov Zamir <kobi.zamir@gmail.com>",
     "license": "Apache-2.0",
@@ -17,7 +18,7 @@
     },
     "scripts": {
         "build": "tsc",
-        "start": "node --loader=ts-node/esm --inspect src/harProxyServer.ts",
+        "start": "tsx --inspect src/harProxyServer.ts",
         "eslint": "eslint --ext .ts src",
         "test": "jest",
         "clean": "rm -rf dist node_modules",
@@ -54,6 +55,7 @@
         "prettier": "^3.2.5",
         "ts-jest": "^29.1.0",
         "ts-node": "^10.9.2",
+        "tsx": "^4.20.6",
         "typedoc": "^0.25.13",
         "typedoc-plugin-markdown": "^3.17.1",
         "typescript": "^5.4.5"

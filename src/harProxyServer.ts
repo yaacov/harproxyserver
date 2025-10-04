@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import express from 'express';
-import { readFileSync } from 'fs';
 import { createServer as createHttpServer } from 'http';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { createServer as createHttpsServer } from 'https';
@@ -9,10 +8,17 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import { exit } from 'process';
-import pkg from '../package.json';
+import { readFileSync } from 'fs';
 import { appendEntryAndSaveHar, filterAndSaveHarLog, loadHarData } from './harFileUtils';
 import { recordedHarMiddleware } from './recordedHarMiddleware';
 import { recorderHarMiddleware } from './recorderHarMiddleware';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// Load package.json at runtime to avoid circular dependency issues
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'));
 
 const argv = yargs(hideBin(process.argv))
   .options({

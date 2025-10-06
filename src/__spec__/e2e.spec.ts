@@ -279,7 +279,7 @@ describe.each([
     expect(harEntry.time).toBeGreaterThanOrEqual(0);
   });
 
-  it.skip('should not contain errors in stderr during HAR file creation', () => {
+  it('should not contain errors in stderr during HAR file creation', () => {
     expect(proxyStderr.toLowerCase()).not.toContain('error');
   });
 });

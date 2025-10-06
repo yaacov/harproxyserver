@@ -19,8 +19,14 @@ export const recordedHarMiddleware = (harFilePath: string, getHar: LoadHarDataFn
       const recordedEntry = findHarEntry(har.log, method, baseUrl);
 
       if (recordedEntry) {
-        const { status, content } = recordedEntry.response;
-        res.status(status).set('Content-Type', content.mimeType);
+        const { status, content, headers } = recordedEntry.response;
+
+        // Set all headers from the recorded response
+        headers.forEach((header) => {
+          res.set(header.name, header.value);
+        });
+
+        res.status(status);
         if (content.text == undefined) {
           console.error(`HAR entry has no body`);
           return next();

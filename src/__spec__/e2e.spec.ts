@@ -445,10 +445,8 @@ describe.each([
     // Content-Type header is forwarded
     expect(replayResponse.headers.get('content-type')).toContain('application/json');
 
-    // TODO: Custom headers are not currently forwarded by recordedHarMiddleware
-    // only Content-Type header is set
-    // const customHeader = replayResponse.headers.get(expectedCustomResponseHeader.name.toLowerCase());
-    // expect(customHeader).toBe(expectedCustomResponseHeader.value);
+    const replayedСustomHeader = replayResponse.headers.get(expectedCustomResponseHeader.name.toLowerCase());
+    expect(replayedСustomHeader).toBe(expectedCustomResponseHeader.value);
   });
 
   it('should serve responses without requiring an upstream server', async () => {

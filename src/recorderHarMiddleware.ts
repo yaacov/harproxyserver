@@ -1,38 +1,100 @@
-import type express from 'express';
+import express from 'express';
 import type { Entry, Header } from 'har-format';
 import * as http from 'http';
 import zlib from 'node:zlib';
 
-import { HarEntryParams, createHarEntryFromText, type AppendEntryAndSaveHarFn } from './harUtils';
+import { createHarEntryFromText, type AppendEntryAndSaveHarFn } from './harUtils';
+
+// Extend Express Request to include buffered body. Reusing .body was also possible
+// but could be confusing as .body is often used for parsed JSON or form data.
+declare module 'express-serve-static-core' {
+  interface Request {
+    rawBody?: Buffer;
+  }
+}
 
 /**
- * Middleware factory that records an HTTP request-response transaction and saves it in a HAR file.
+ * Creates a proxy response handler to be used as the `onProxyRes` callback in http-proxy-middleware.
+ *
+ * The handler:
+ * - Streams response chunks to the client immediately
+ * - Accumulates chunks for HAR file recording
+ * - Decompresses gzipped responses for HAR file
  *
  * @param {string} harFilePath - The file path to save the HAR file.
  * @param {AppendEntryAndSaveHarFn} appendEntryAndSaveHar - Function to append the new entry and save the HAR file.
  * @param {string} targetUrl - The prefix for the HAR playback endpoint.
- * @returns {function} Custom proxy response handler.
+ * @returns {function} A event handler for http-proxy-middleware's `onProxyRes`.
  */
 export const recorderHarMiddleware = (harFilePath: string, appendEntryAndSaveHar: AppendEntryAndSaveHarFn, targetUrl: string) => {
   return (proxyRes: http.IncomingMessage, req: express.Request, res: express.Response) => {
     const startTime = new Date().getTime();
     const newRequestEntry: Entry = createHarEntry(targetUrl, proxyRes, req);
 
-    proxyRes.on('data', (chunk: string) => {
-      const isGzip = proxyRes.headers['content-encoding'] === 'gzip';
-      if (isGzip) {
-        chunk = zlib.gunzipSync(Buffer.from(chunk, 'base64')).toString('utf8');
-      }
+    // Accumulate upstream response chunks to be able to decompress the accumulated gzip for HAR file
+    const upstreamResponseChunks: Buffer[] = [];
+    const isGzip = proxyRes.headers['content-encoding'] === 'gzip';
 
-      updateEntryOnData(newRequestEntry, startTime, chunk);
+    // Forward response status code and headers from upstream to client immediately
+    res.statusCode = proxyRes.statusCode || 502;
+    Object.entries(proxyRes.headers).forEach(([key, value]) => {
+      if (value !== undefined) {
+        res.setHeader(key, value);
+      }
+    });
+
+    proxyRes.on('data', (chunk: Buffer) => {
+      // Accumulate chunks for HAR file
+      upstreamResponseChunks.push(chunk);
+
+      // Stream raw data to client immediately
+      res.write(chunk);
     });
 
     proxyRes.on('end', async () => {
-      await appendEntryAndSaveHar(newRequestEntry, harFilePath);
+      try {
+        // Concatenate all chunks for HAR processing
+        const rawData = Buffer.concat(upstreamResponseChunks as Uint8Array[]);
 
-      const resBodyText = newRequestEntry.response.content?.text || '';
-      res.setHeader('Content-Length', Buffer.byteLength(resBodyText));
-      res.end(resBodyText);
+        // Decompress ONLY for HAR file, not for client
+        let responseText: string;
+
+        if (isGzip) {
+          try {
+            const decompressed = zlib.gunzipSync(rawData as Uint8Array);
+            responseText = decompressed.toString('utf-8');
+          } catch (error) {
+            console.error('Failed to decompress gzip data for HAR:', error);
+            // Fall back to raw data if decompression fails
+            responseText = rawData.toString('utf-8');
+          }
+        } else {
+          responseText = rawData.toString('utf-8');
+        }
+
+        // Update the HAR entry with the complete decompressed response
+        const endTime = new Date().getTime();
+        newRequestEntry.time = endTime - startTime;
+        newRequestEntry.timings.receive = newRequestEntry.time;
+        newRequestEntry.response.content.text = responseText;
+        newRequestEntry.response.content.size = responseText.length;
+
+        // Save to HAR file
+        await appendEntryAndSaveHar(newRequestEntry, harFilePath);
+
+        // Close the response stream to the client
+        res.end();
+      } catch (error) {
+        console.error('Error processing response:', error);
+        res.statusCode = 500;
+        res.end('Proxy error');
+      }
+    });
+
+    proxyRes.on('error', (error) => {
+      console.error('Proxy response error:', error);
+      res.statusCode = 502;
+      res.end('Bad Gateway');
     });
   };
 };
@@ -46,7 +108,7 @@ export const recorderHarMiddleware = (harFilePath: string, appendEntryAndSaveHar
  * @returns A HAR entry for the request and response.
  */
 function createHarEntry(targetUrl: string, proxyRes: http.IncomingMessage, req: express.Request): Entry {
-  const params: HarEntryParams = {
+  const entry = createHarEntryFromText({
     baseUrl: targetUrl,
     endpoint: req.originalUrl,
     text: '',
@@ -54,26 +116,30 @@ function createHarEntry(targetUrl: string, proxyRes: http.IncomingMessage, req: 
     requestMethod: req.method,
     statusCode: proxyRes.statusCode || 502,
     headers: convertToHarHeaders(proxyRes.headers),
-  };
+  });
 
-  return createHarEntryFromText(params);
-}
+  // Add request headers to the HAR entry
+  entry.request.headers = convertToHarHeaders(req.headers);
 
-/**
- * Updates the given HAR entry with data received from the target server.
- *
- * @param newRequestEntry The HAR entry to update.
- * @param startTime The start time of the request in milliseconds.
- * @param chunk A chunk of data received from the target server.
- */
-function updateEntryOnData(newRequestEntry: Entry, startTime: number, chunk: string) {
-  const endTime = new Date().getTime();
+  // Add query string parameters
+  if (req.query && Object.keys(req.query).length > 0) {
+    entry.request.queryString = Object.entries(req.query).map(([name, value]) => ({
+      name,
+      value: Array.isArray(value) ? value.join(',') : String(value),
+    }));
+  }
 
-  newRequestEntry.time = endTime - startTime;
-  newRequestEntry.timings.receive = newRequestEntry.time;
+  // Add POST/PUT/PATCH request body if available
+  if (req.rawBody && req.rawBody.length > 0 && ['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    const contentType = req.headers['content-type'] || 'application/octet-stream';
+    entry.request.postData = {
+      mimeType: contentType,
+      text: req.rawBody.toString('utf-8'),
+    };
+    entry.request.bodySize = req.rawBody.length;
+  }
 
-  newRequestEntry.response.content.text = newRequestEntry.response.content.text?.concat(chunk) || '';
-  newRequestEntry.response.content.size = newRequestEntry.response.content.text?.length || 0;
+  return entry;
 }
 
 /**
@@ -116,3 +182,34 @@ function convertToHarHeaders(incomingHeaders: http.IncomingHttpHeaders): Header[
 
   return harHeaders;
 }
+
+/**
+ * Express middleware that buffers the __client request body__ stream.
+ *
+ * HTTP request bodies are streams that can only be read once, creating a conflict:
+ * - The proxy needs to forward the body to the upstream server
+ * - The HAR recorder needs to save the body to the HAR file
+ * - Streams can only be consumed once
+ *
+ * This middleware uses express.raw() to:
+ * 1. Read all chunks from the incoming request stream
+ * 2. Concatenate them into a single Buffer
+ * 3. Store the buffer in req.rawBody for later use
+ * 4. Allow the proxy to forward the buffered body to upstream
+ * 5. Allow the HAR recorder to save the buffered body to the HAR file
+ *
+ * Note: The response side uses a different approach - it streams chunks to the
+ * client immediately while accumulating them for the HAR file in parallel.
+ */
+export const requestBodyBufferMiddleware = express.raw({
+  type: () => true, // Capture all content types
+  limit: '50mb', // Can be adjusted if needed
+  // This function is called before the body is fully parsed,
+  // Receives the raw Buffer (buf) of the complete body
+  // and stores it in req.rawBody so we can access it later
+  verify: (req: express.Request, _res, buf) => {
+    // Store the full raw buffer on the request, so the HAR can save it
+    // in a HAR file and the proxy can forward it to the upstream server
+    req.rawBody = buf;
+  },
+});

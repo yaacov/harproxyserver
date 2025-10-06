@@ -11,7 +11,7 @@ import { exit } from 'process';
 import { readFileSync } from 'fs';
 import { appendEntryAndSaveHar, filterAndSaveHarLog, loadHarData } from './harFileUtils';
 import { recordedHarMiddleware } from './recordedHarMiddleware';
-import { recorderHarMiddleware } from './recorderHarMiddleware';
+import { recorderHarMiddleware, requestBodyBufferMiddleware } from './recorderHarMiddleware';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -121,6 +121,9 @@ switch (argv.mode) {
   case 'record': {
     const onProxyResHandler = recorderHarMiddleware(harFile, appendEntryAndSaveHar, targetUrl);
 
+    // Add body buffer middleware to capture POST/PUT/PATCH bodies before proxying
+    app.use(requestBodyBufferMiddleware);
+
     app.use(
       '/',
       createProxyMiddleware({
@@ -128,6 +131,16 @@ switch (argv.mode) {
         changeOrigin: true,
         selfHandleResponse: true,
         on: {
+          proxyReq: (proxyReq, req) => {
+            // Rewrite the body if it was buffered
+            const expressReq = req;
+            if (expressReq.body && Buffer.isBuffer(expressReq.body)) {
+              const bodyData = expressReq.body;
+              proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+              proxyReq.write(bodyData);
+              proxyReq.end();
+            }
+          },
           proxyRes: onProxyResHandler,
         },
         secure: argv.secure,

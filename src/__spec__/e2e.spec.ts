@@ -187,7 +187,7 @@ describe.each([
     }
   });
 
-  it.skip('should proxy the request and response correctly', () => {
+  it('should proxy the request and response correctly', () => {
     // Request forwarding: client -> proxy -> upstream
     expect(requestHeadersReceivedByUpstream[clientCustomRequestHeader.name.toLowerCase()]).toBe(clientCustomRequestHeader.value);
 
@@ -218,7 +218,7 @@ describe.each([
     expect(harEntry).toBeDefined();
   });
 
-  it.skip('should record the request in HAR file', () => {
+  it('should record the request in HAR file', () => {
     // Request method and URL
     expect(harEntry.request.method).toBe(method);
     expect(harEntry.request.url).toContain('/api/hello');

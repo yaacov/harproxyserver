@@ -3,7 +3,7 @@ import type { Entry, Header } from 'har-format';
 import * as http from 'http';
 import zlib from 'node:zlib';
 
-import { createHarEntryFromText, type AppendEntryAndSaveHarFn } from './harUtils';
+import { createHarEntryFromText, type AppendEntryAndSaveHarFn } from './harUtils.js';
 
 // Extend Express Request to include buffered body. Reusing .body was also possible
 // but could be confusing as .body is often used for parsed JSON or form data.

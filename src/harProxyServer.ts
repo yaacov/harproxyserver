@@ -9,9 +9,9 @@ import { hideBin } from 'yargs/helpers';
 
 import { exit } from 'process';
 import { readFileSync } from 'fs';
-import { appendEntryAndSaveHar, filterAndSaveHarLog, loadHarData } from './harFileUtils';
-import { recordedHarMiddleware } from './recordedHarMiddleware';
-import { recorderHarMiddleware, requestBodyBufferMiddleware } from './recorderHarMiddleware';
+import { appendEntryAndSaveHar, filterAndSaveHarLog, loadHarData } from './harFileUtils.js';
+import { recordedHarMiddleware } from './recordedHarMiddleware.js';
+import { recorderHarMiddleware, requestBodyBufferMiddleware } from './recorderHarMiddleware.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -77,6 +77,7 @@ const argv = yargs(hideBin(process.argv))
     },
   })
   .version('version', 'Show version and app information', `App: ${pkg.name}\nVersion: ${pkg.version}\nDescription: ${pkg.description}`)
+  .alias('version', 'v')
   .help('h')
   .alias('h', 'help')
   .parseSync();

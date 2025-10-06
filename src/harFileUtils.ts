@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import { dirname } from 'path';
 
 import { Entry, Har, Log } from 'har-format';
-import { filterHarLog } from './harUtils';
+import { filterHarLog } from './harUtils.js';
 
 /**
  * Reads a HAR file and returns the parsed HAR object.

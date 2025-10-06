@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
-import type { LoadHarDataFn } from './harUtils';
-import { findHarEntry } from './harUtils';
+import type { LoadHarDataFn } from './harUtils.js';
+import { findHarEntry } from './harUtils.js';
 
 /**
  * A middleware factory that reads the HAR file and returns the body of the recorded request

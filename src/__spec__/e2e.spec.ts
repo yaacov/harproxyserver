@@ -18,14 +18,14 @@ import { findAvailablePort, waitForCondition } from './test-helpers';
  * while maintaining focused, single-purpose test assertions.
  */
 describe.each([
-  { method: 'GET', hasClientRequestBody: false, isCommunicationGzipped: false },
-  { method: 'POST', hasClientRequestBody: true, isCommunicationGzipped: false },
-  { method: 'PUT', hasClientRequestBody: true, isCommunicationGzipped: false },
-  { method: 'PATCH', hasClientRequestBody: true, isCommunicationGzipped: false },
-  { method: 'DELETE', hasClientRequestBody: false, isCommunicationGzipped: false },
-  { method: 'GET', hasClientRequestBody: false, isCommunicationGzipped: true, testName: 'gzipped GET' },
-  { method: 'POST', hasClientRequestBody: true, isCommunicationGzipped: true, testName: 'gzipped POST with large body' },
-])('Record flow for $method requests', ({ method, hasClientRequestBody, isCommunicationGzipped }) => {
+  { method: 'GET', hasClientRequestBody: false, isResponseBodyGzipped: false },
+  { method: 'POST', hasClientRequestBody: true, isResponseBodyGzipped: false },
+  { method: 'PUT', hasClientRequestBody: true, isResponseBodyGzipped: false },
+  { method: 'PATCH', hasClientRequestBody: true, isResponseBodyGzipped: false },
+  { method: 'DELETE', hasClientRequestBody: false, isResponseBodyGzipped: false },
+  { method: 'GET', hasClientRequestBody: false, isResponseBodyGzipped: true, testName: 'gzipped GET' },
+  { method: 'POST', hasClientRequestBody: true, isResponseBodyGzipped: true, testName: 'gzipped POST with large body' },
+])('Record flow for $method requests', ({ method, hasClientRequestBody, isResponseBodyGzipped }) => {
   // Client data for assertions
   let responseReceivedByClient: Response;
   let payloadReceivedByClient: unknown;
@@ -35,7 +35,7 @@ describe.each([
   };
 
   // For gzipped large body test, create a large object
-  const clientRequestBody = hasClientRequestBody ? { message: 'client request body'.repeat(isCommunicationGzipped ? 100 : 1) } : undefined;
+  const clientRequestBody = hasClientRequestBody ? { message: 'client request body'.repeat(isResponseBodyGzipped ? 100 : 1) } : undefined;
 
   // Proxy server data for assertions
   let har: Har;
@@ -55,7 +55,7 @@ describe.each([
   const upstreamCustomResponseHeader = { name: 'X-Upstream-Response-Header', value: 'bar' };
 
   // For gzipped tests, create a large response body
-  const upstreamResponseBody = { message: 'upstream server response body'.repeat(isCommunicationGzipped ? 100 : 1) };
+  const upstreamResponseBody = { message: 'upstream server response body'.repeat(isResponseBodyGzipped ? 100 : 1) };
 
   beforeAll(async () => {
     // Create test directory
@@ -76,7 +76,7 @@ describe.each([
       requestBodyReceivedByUpstream = req.body;
       res.setHeader(upstreamCustomResponseHeader.name, upstreamCustomResponseHeader.value);
 
-      if (isCommunicationGzipped) {
+      if (isResponseBodyGzipped) {
         // Gzip the response
         const jsonString = JSON.stringify(upstreamResponseBody);
         zlib.gzip(jsonString, (err, gzippedData) => {
@@ -202,7 +202,7 @@ describe.each([
     expect(responseReceivedByClient.headers.get(upstreamCustomResponseHeader.name)).toBe(upstreamCustomResponseHeader.value);
 
     // For gzipped responses, verify Content-Encoding was handled (decompressed to client)
-    if (isCommunicationGzipped) {
+    if (isResponseBodyGzipped) {
       // Client should NOT receive gzip encoding (fetch auto-decompresses)
       // But we can verify the payload is the full expected JSON
       expect(payloadReceivedByClient).toEqual(upstreamResponseBody);
@@ -250,7 +250,7 @@ describe.each([
     expect(harResponseHeader?.value).toBe(upstreamCustomResponseHeader.value);
 
     // For gzipped responses, verify Content-Encoding header was recorded
-    if (isCommunicationGzipped) {
+    if (isResponseBodyGzipped) {
       const contentEncodingHeader = harEntry.response.headers.find((h) => h.name === 'content-encoding');
       expect(contentEncodingHeader?.value).toBe('gzip');
     }
@@ -264,7 +264,7 @@ describe.each([
     expect(responseBody).toEqual(upstreamResponseBody);
 
     // For gzipped responses, verify the content was decompressed (large body size)
-    if (isCommunicationGzipped) {
+    if (isResponseBodyGzipped) {
       const contentSize = harEntry.response.content.text?.length || 0;
       expect(contentSize).toBeGreaterThan(1000); // Large decompressed body
     }
@@ -354,6 +354,7 @@ describe.each([
                 { name: 'content-type', value: 'application/json; charset=utf-8' },
                 { name: expectedCustomResponseHeader.name.toLowerCase(), value: expectedCustomResponseHeader.value },
                 ...(isResponseBodyGzipped ? [{ name: 'content-encoding', value: 'gzip' }] : []),
+                ...(isResponseBodyGzipped ? [{ name: 'content-length', value: '9999' }] : []), // Wrong size to simulate upstream
               ],
               cookies: [],
               content: {
@@ -563,6 +564,80 @@ describe.each([
         const body = await response.json();
         expect(body).toEqual(expectedBody);
       }
+    });
+
+    it('should update content-length header to match re-compressed body size', async () => {
+      // This test ensures that when we re-compress the content, the content-length
+      // header reflects the actual size of the compressed data we're sending,
+      // not the original upstream compressed size stored in the HAR file.
+      //
+      // Background: The HAR file stores decompressed content as plain text but
+      // preserves the original upstream headers including content-length (in this
+      // test we simulate a wrong content-length of 9999). When we re-compress
+      // during replay, the compressed size will differ from the original.
+      //
+      // Express's res.send() automatically sets the correct Content-Length header
+      // based on the actual buffer size, overwriting any previously set value.
+      // This test verifies that behavior works correctly.
+
+      const http = await import('http');
+
+      const rawResponse = await new Promise<{ statusCode: number; headers: IncomingHttpHeaders; body: Buffer }>((resolve, reject) => {
+        const req = http.request(
+          {
+            hostname: 'localhost',
+            port: proxyPort,
+            path: '/api/hello',
+            method,
+            headers: {
+              'accept-encoding': 'gzip, deflate',
+              ...(hasRequestBody ? { 'content-type': 'application/json' } : {}),
+            },
+          },
+          (res) => {
+            const chunks: Buffer[] = [];
+            res.on('data', (chunk) => chunks.push(chunk));
+            res.on('end', () => {
+              resolve({
+                statusCode: res.statusCode || 0,
+                headers: res.headers,
+                body: Buffer.concat(chunks as Uint8Array[]),
+              });
+            });
+            res.on('error', reject);
+          },
+        );
+
+        if (hasRequestBody) {
+          req.write(JSON.stringify(expectedRequestBody));
+        }
+        req.on('error', reject);
+        req.end();
+      });
+
+      // Verify we have a content-length header
+      expect(rawResponse.headers['content-length']).toBeDefined();
+
+      const reportedContentLength = parseInt(rawResponse.headers['content-length'] as string, 10);
+      const actualBodySize = rawResponse.body.length;
+
+      // The content-length header MUST match the actual body size
+      // Express automatically sets this correctly when using res.send()
+      expect(reportedContentLength).toBe(actualBodySize);
+
+      // Verify it's NOT the wrong value from the HAR file (9999)
+      expect(reportedContentLength).not.toBe(9999);
+
+      // Additional verification: ensure the body is actually compressed and valid
+      const decompressed = await new Promise<Buffer>((resolve, reject) => {
+        zlib.gunzip(rawResponse.body as Uint8Array, (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        });
+      });
+
+      const parsedBody = JSON.parse(decompressed.toString('utf-8'));
+      expect(parsedBody).toEqual(expectedBody);
     });
   }
 });

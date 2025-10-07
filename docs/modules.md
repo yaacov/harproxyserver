@@ -15,8 +15,8 @@
 - [createHarEntryFromText](modules.md#createharentryfromtext)
 - [filterHarLog](modules.md#filterharlog)
 - [findHarEntry](modules.md#findharentry)
-- [recordedHarMiddleware](modules.md#recordedharmiddleware)
-- [recorderHarMiddleware](modules.md#recorderharmiddleware)
+- [getRecordedHarMiddleware](modules.md#getRecordedHarMiddleware)
+- [getRecorderHarMiddleware](modules.md#getRecorderHarMiddleware)
 
 ## Type Aliases
 
@@ -32,9 +32,9 @@ A type representing a function that sets a new HAR entry and saves it to a given
 
 ##### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `entry` | `Entry` | The new HAR entry to be added. |
+| Name       | Type     | Description                                           |
+| :--------- | :------- | :---------------------------------------------------- |
+| `entry`    | `Entry`  | The new HAR entry to be added.                        |
 | `filePath` | `string` | The path of the file to save the updated HAR data to. |
 
 ##### Returns
@@ -45,7 +45,7 @@ A type representing a function that sets a new HAR entry and saves it to a given
 
 [harUtils.ts:22](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/harUtils.ts#L22)
 
-___
+---
 
 ### HarEntryParams
 
@@ -55,21 +55,21 @@ Type for the parameter object of the createHarEntryFromText function.
 
 #### Type declaration
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `baseUrl` | `string` | The base URL of the request (example: 'https://example.com'). |
-| `endpoint` | `string` | The endpoint of the request (example: '/book/story/?page=4'). |
-| `headers?` | `Header`[] | The response headers (default: an empty array). Optional. |
-| `mimeType?` | `string` | The MIME type of the response body (default: 'application/json'). Optional. |
-| `requestMethod?` | `string` | The HTTP method used for the request (default: 'GET'). Optional. |
-| `statusCode?` | `number` | The HTTP status code of the response (default: StatusCodes.OK). Optional. |
-| `text` | `string` | The text of the response body. |
+| Name             | Type       | Description                                                                 |
+| :--------------- | :--------- | :-------------------------------------------------------------------------- |
+| `baseUrl`        | `string`   | The base URL of the request (example: 'https://example.com').               |
+| `endpoint`       | `string`   | The endpoint of the request (example: '/book/story/?page=4').               |
+| `headers?`       | `Header`[] | The response headers (default: an empty array). Optional.                   |
+| `mimeType?`      | `string`   | The MIME type of the response body (default: 'application/json'). Optional. |
+| `requestMethod?` | `string`   | The HTTP method used for the request (default: 'GET'). Optional.            |
+| `statusCode?`    | `number`   | The HTTP status code of the response (default: StatusCodes.OK). Optional.   |
+| `text`           | `string`   | The text of the response body.                                              |
 
 #### Defined in
 
 [harUtils.ts:149](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/harUtils.ts#L149)
 
-___
+---
 
 ### LoadHarDataFn
 
@@ -83,8 +83,8 @@ A type representing a function that retrieves a HAR object from a given file.
 
 ##### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
+| Name       | Type     | Description                                     |
+| :--------- | :------- | :---------------------------------------------- |
 | `filePath` | `string` | The path of the file to read the HAR data from. |
 
 ##### Returns
@@ -105,8 +105,8 @@ Creates a HAR (HTTP Archive) entry object from the given input parameters.
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
+| Name     | Type                                          | Description                                |
+| :------- | :-------------------------------------------- | :----------------------------------------- |
 | `params` | [`HarEntryParams`](modules.md#harentryparams) | The parameters for creating the HAR entry. |
 
 #### Returns
@@ -119,7 +119,7 @@ The generated HAR entry object.
 
 [harUtils.ts:178](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/harUtils.ts#L178)
 
-___
+---
 
 ### filterHarLog
 
@@ -129,15 +129,15 @@ Filters a HAR log and returns a filtered HAR log based on the specified inputs.
 
 #### Parameters
 
-| Name | Type | Default value | Description |
-| :------ | :------ | :------ | :------ |
-| `harLog` | `undefined` \| ``null`` \| `Log` | `undefined` | The HAR log to filter. |
-| `method` | `string` | `undefined` | The HTTP method to filter by. |
-| `endpoint` | `string` | `undefined` | The endpoint (pathname and search) to filter by, e.g., "/users?id=123". |
-| `endpointRegex?` | `RegExp` | `undefined` | Optional regular expression to match the endpoint against. |
-| `ignoreSearch?` | `boolean` | `false` | Optional flag to ignore the search part of the URL when matching endpoints. |
-| `prefixToRemove?` | `string` | `undefined` | Optional prefix to remove from the beginning of the `entry.request.path` property before matching the endpoint. |
-| `sanitize?` | `boolean` | `undefined` | Optional remove headers and cookies from the har file. |
+| Name              | Type                           | Default value | Description                                                                                                     |
+| :---------------- | :----------------------------- | :------------ | :-------------------------------------------------------------------------------------------------------------- |
+| `harLog`          | `undefined` \| `null` \| `Log` | `undefined`   | The HAR log to filter.                                                                                          |
+| `method`          | `string`                       | `undefined`   | The HTTP method to filter by.                                                                                   |
+| `endpoint`        | `string`                       | `undefined`   | The endpoint (pathname and search) to filter by, e.g., "/users?id=123".                                         |
+| `endpointRegex?`  | `RegExp`                       | `undefined`   | Optional regular expression to match the endpoint against.                                                      |
+| `ignoreSearch?`   | `boolean`                      | `false`       | Optional flag to ignore the search part of the URL when matching endpoints.                                     |
+| `prefixToRemove?` | `string`                       | `undefined`   | Optional prefix to remove from the beginning of the `entry.request.path` property before matching the endpoint. |
+| `sanitize?`       | `boolean`                      | `undefined`   | Optional remove headers and cookies from the har file.                                                          |
 
 #### Returns
 
@@ -149,28 +149,28 @@ The filtered HAR log. If no matching entries are found, an empty log will be ret
 
 [harUtils.ts:84](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/harUtils.ts#L84)
 
-___
+---
 
 ### findHarEntry
 
-▸ **findHarEntry**(`harLog`, `method`, `endpoint`, `endpointRegex?`, `ignoreSearch?`, `prefixToRemove?`): `Entry` \| ``null``
+▸ **findHarEntry**(`harLog`, `method`, `endpoint`, `endpointRegex?`, `ignoreSearch?`, `prefixToRemove?`): `Entry` \| `null`
 
 Finds the HAR entry in the given log with the matching HTTP method and endpoint.
 
 #### Parameters
 
-| Name | Type | Default value | Description |
-| :------ | :------ | :------ | :------ |
-| `harLog` | `undefined` \| ``null`` \| `Log` | `undefined` | The HAR log to search through. |
-| `method` | `string` | `undefined` | The HTTP method of the desired entry. |
-| `endpoint` | `string` | `undefined` | The endpoint (pathname and search) of the desired entry, e.g., "/users?id=123". |
-| `endpointRegex?` | `RegExp` | `undefined` | Optional regular expression to match the endpoint against. For example, to match endpoints that start with "/users" followed by a number, use `/^/users\d+/`. |
-| `ignoreSearch?` | `boolean` | `false` | Optional flag to ignore the search part of the URL when matching endpoints. |
-| `prefixToRemove?` | `string` | `undefined` | Optional prefix to remove from the beginning of the `entry.request.path` property before matching the endpoint. |
+| Name              | Type                           | Default value | Description                                                                                                                                                   |
+| :---------------- | :----------------------------- | :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `harLog`          | `undefined` \| `null` \| `Log` | `undefined`   | The HAR log to search through.                                                                                                                                |
+| `method`          | `string`                       | `undefined`   | The HTTP method of the desired entry.                                                                                                                         |
+| `endpoint`        | `string`                       | `undefined`   | The endpoint (pathname and search) of the desired entry, e.g., "/users?id=123".                                                                               |
+| `endpointRegex?`  | `RegExp`                       | `undefined`   | Optional regular expression to match the endpoint against. For example, to match endpoints that start with "/users" followed by a number, use `/^/users\d+/`. |
+| `ignoreSearch?`   | `boolean`                      | `false`       | Optional flag to ignore the search part of the URL when matching endpoints.                                                                                   |
+| `prefixToRemove?` | `string`                       | `undefined`   | Optional prefix to remove from the beginning of the `entry.request.path` property before matching the endpoint.                                               |
 
 #### Returns
 
-`Entry` \| ``null``
+`Entry` \| `null`
 
 The matching HAR entry if found, or null if not found.
 
@@ -178,22 +178,22 @@ The matching HAR entry if found, or null if not found.
 
 [harUtils.ts:35](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/harUtils.ts#L35)
 
-___
+---
 
-### recordedHarMiddleware
+### getRecordedHarMiddleware
 
-▸ **recordedHarMiddleware**(`harFilePath`, `getHar`, `prefix`): (`req`: `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\>, `res`: `Response`\<`any`, `Record`\<`string`, `any`\>\>, `next`: `NextFunction`) => `Promise`\<`void`\>
+▸ **getRecordedHarMiddleware**(`harFilePath`, `getHar`, `prefix`): (`req`: `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\>, `res`: `Response`\<`any`, `Record`\<`string`, `any`\>\>, `next`: `NextFunction`) => `Promise`\<`void`\>
 
 A middleware factory that reads the HAR file and returns the body of the recorded request
 based on the path and method.
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `harFilePath` | `string` | The path of the HAR file to read |
-| `getHar` | [`LoadHarDataFn`](modules.md#loadhardatafn) | - |
-| `prefix` | `string` | - |
+| Name          | Type                                        | Description                      |
+| :------------ | :------------------------------------------ | :------------------------------- |
+| `harFilePath` | `string`                                    | The path of the HAR file to read |
+| `getHar`      | [`LoadHarDataFn`](modules.md#loadhardatafn) | -                                |
+| `prefix`      | `string`                                    | -                                |
 
 #### Returns
 
@@ -205,11 +205,11 @@ Express middleware
 
 ##### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `req` | `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\> |
-| `res` | `Response`\<`any`, `Record`\<`string`, `any`\>\> |
-| `next` | `NextFunction` |
+| Name   | Type                                                                                   |
+| :----- | :------------------------------------------------------------------------------------- |
+| `req`  | `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\> |
+| `res`  | `Response`\<`any`, `Record`\<`string`, `any`\>\>                                       |
+| `next` | `NextFunction`                                                                         |
 
 ##### Returns
 
@@ -217,23 +217,23 @@ Express middleware
 
 #### Defined in
 
-[recordedHarMiddleware.ts:12](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/recordedHarMiddleware.ts#L12)
+[getRecordedHarMiddleware.ts:12](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/getRecordedHarMiddleware.ts#L12)
 
-___
+---
 
-### recorderHarMiddleware
+### getRecorderHarMiddleware
 
-▸ **recorderHarMiddleware**(`harFilePath`, `appendEntryAndSaveHar`, `targetUrl`): (`proxyRes`: `IncomingMessage`, `req`: `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\>, `res`: `Response`\<`any`, `Record`\<`string`, `any`\>\>) => `void`
+▸ **getRecorderHarMiddleware**(`harFilePath`, `appendEntryAndSaveHar`, `targetUrl`): (`proxyRes`: `IncomingMessage`, `req`: `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\>, `res`: `Response`\<`any`, `Record`\<`string`, `any`\>\>) => `void`
 
 Middleware factory that records an HTTP request-response transaction and saves it in a HAR file.
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `harFilePath` | `string` | The file path to save the HAR file. |
+| Name                    | Type                                                            | Description                                             |
+| :---------------------- | :-------------------------------------------------------------- | :------------------------------------------------------ |
+| `harFilePath`           | `string`                                                        | The file path to save the HAR file.                     |
 | `appendEntryAndSaveHar` | [`AppendEntryAndSaveHarFn`](modules.md#appendentryandsaveharfn) | Function to append the new entry and save the HAR file. |
-| `targetUrl` | `string` | The prefix for the HAR playback endpoint. |
+| `targetUrl`             | `string`                                                        | The prefix for the HAR playback endpoint.               |
 
 #### Returns
 
@@ -245,11 +245,11 @@ Custom proxy response handler.
 
 ##### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `proxyRes` | `IncomingMessage` |
-| `req` | `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\> |
-| `res` | `Response`\<`any`, `Record`\<`string`, `any`\>\> |
+| Name       | Type                                                                                   |
+| :--------- | :------------------------------------------------------------------------------------- |
+| `proxyRes` | `IncomingMessage`                                                                      |
+| `req`      | `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\> |
+| `res`      | `Response`\<`any`, `Record`\<`string`, `any`\>\>                                       |
 
 ##### Returns
 
@@ -257,4 +257,4 @@ Custom proxy response handler.
 
 #### Defined in
 
-[recorderHarMiddleware.ts:16](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/recorderHarMiddleware.ts#L16)
+[getRecorderHarMiddleware.ts:16](https://github.com/yaacov/harproxyserver/blob/8443af054be1a98d0b74d0448e5d3672f2dabea2/src/getRecorderHarMiddleware.ts#L16)

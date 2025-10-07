@@ -26,7 +26,7 @@ declare module 'express-serve-static-core' {
  * @param {string} targetUrl - The prefix for the HAR playback endpoint.
  * @returns {function} A event handler for http-proxy-middleware's `onProxyRes`.
  */
-export const recorderHarMiddleware = (harFilePath: string, appendEntryAndSaveHar: AppendEntryAndSaveHarFn, targetUrl: string) => {
+export const getRecorderHarMiddleware = (harFilePath: string, appendEntryAndSaveHar: AppendEntryAndSaveHarFn, targetUrl: string) => {
   return (proxyRes: http.IncomingMessage, req: express.Request, res: express.Response) => {
     const startTime = new Date().getTime();
     const newRequestEntry: Entry = createHarEntry(targetUrl, proxyRes, req);

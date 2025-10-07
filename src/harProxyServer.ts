@@ -10,8 +10,8 @@ import { hideBin } from 'yargs/helpers';
 import { exit } from 'process';
 import { readFileSync } from 'fs';
 import { appendEntryAndSaveHar, filterAndSaveHarLog, loadHarData } from './harFileUtils.js';
-import { recordedHarMiddleware } from './recordedHarMiddleware.js';
-import { recorderHarMiddleware, requestBodyBufferMiddleware } from './recorderHarMiddleware.js';
+import { getRecordedHarMiddleware } from './getRecordedHarMiddleware.js';
+import { getRecorderHarMiddleware, requestBodyBufferMiddleware } from './getRecorderHarMiddleware.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -116,11 +116,11 @@ switch (argv.mode) {
     break;
   }
   case 'play': {
-    app.use(`/${argv.prefix}*`, recordedHarMiddleware(harFile, loadHarData, argv.prefix));
+    app.use(`/${argv.prefix}*`, getRecordedHarMiddleware(harFile, loadHarData, argv.prefix));
     break;
   }
   case 'record': {
-    const onProxyResHandler = recorderHarMiddleware(harFile, appendEntryAndSaveHar, targetUrl);
+    const onProxyResHandler = getRecorderHarMiddleware(harFile, appendEntryAndSaveHar, targetUrl);
 
     // Add body buffer middleware to capture POST/PUT/PATCH bodies before proxying
     app.use(requestBodyBufferMiddleware);

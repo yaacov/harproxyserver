@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import zlib from 'node:zlib';
 import type { LoadHarDataFn } from './harUtils.js';
 import { findHarEntry } from './harUtils.js';
 
@@ -21,6 +22,10 @@ export const recordedHarMiddleware = (harFilePath: string, getHar: LoadHarDataFn
       if (recordedEntry) {
         const { status, content, headers } = recordedEntry.response;
 
+        // Check if the response should be gzipped
+        const contentEncodingHeader = headers.find((h) => h.name.toLowerCase() === 'content-encoding');
+        const shouldGzip = contentEncodingHeader?.value.toLowerCase() === 'gzip';
+
         // Set all headers from the recorded response
         headers.forEach((header) => {
           res.set(header.name, header.value);
@@ -31,19 +36,35 @@ export const recordedHarMiddleware = (harFilePath: string, getHar: LoadHarDataFn
           console.error(`HAR entry has no body`);
           return next();
         }
+
+        // Prepare the response content
+        let responseBuffer: Buffer;
         switch (content.encoding) {
           case undefined: {
-            res.send(content.text);
+            responseBuffer = Buffer.from(content.text, 'utf-8');
             break;
           }
           case 'base64': {
-            res.send(Buffer.from(content.text, 'base64'));
+            responseBuffer = Buffer.from(content.text, 'base64');
             break;
           }
           default: {
             console.error(`Unknown .content.encoding in HAR entry: ${content.encoding}`);
             return next();
           }
+        }
+
+        // If the original response was gzipped, re-compress it
+        if (shouldGzip) {
+          try {
+            const gzipped = zlib.gzipSync(responseBuffer as Uint8Array);
+            res.send(gzipped);
+          } catch (error) {
+            console.error('Failed to gzip response:', error);
+            return next();
+          }
+        } else {
+          res.send(responseBuffer);
         }
       } else {
         return next();

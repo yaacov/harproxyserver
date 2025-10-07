@@ -285,12 +285,13 @@ describe.each([
 });
 
 describe.each([
-  { method: 'GET', hasRequestBody: false },
-  { method: 'POST', hasRequestBody: true },
-  { method: 'PUT', hasRequestBody: true },
-  { method: 'PATCH', hasRequestBody: true },
-  { method: 'DELETE', hasRequestBody: false },
-])('Replay flow for $method requests', ({ method, hasRequestBody }) => {
+  { method: 'GET', hasRequestBody: false, isResponseBodyGzipped: false },
+  { method: 'POST', hasRequestBody: true, isResponseBodyGzipped: false },
+  { method: 'PUT', hasRequestBody: true, isResponseBodyGzipped: false },
+  { method: 'PATCH', hasRequestBody: true, isResponseBodyGzipped: false },
+  { method: 'DELETE', hasRequestBody: false, isResponseBodyGzipped: false },
+  { method: 'GET', hasRequestBody: false, isResponseBodyGzipped: true },
+])('Replay flow for $method requests', ({ method, hasRequestBody, isResponseBodyGzipped }) => {
   jest.setTimeout(60000); // 60 second timeout for entire suite
 
   const testDir = join(process.cwd(), 'test-output-e2e');
@@ -304,7 +305,9 @@ describe.each([
 
   // Expected data (from the recorded HAR)
   const expectedStatus = 200;
-  const expectedBody = { message: 'replay response body' };
+  const expectedBody = isResponseBodyGzipped
+    ? { message: 'This is a gzipped response'.repeat(50) } // Large body for gzip
+    : { message: 'replay response body' };
   const expectedRequestBody = hasRequestBody ? { data: 'replay request body' } : undefined;
   const expectedCustomResponseHeader = { name: 'X-Upstream-Response-Header', value: 'bar' };
 
@@ -350,6 +353,7 @@ describe.each([
               headers: [
                 { name: 'content-type', value: 'application/json; charset=utf-8' },
                 { name: expectedCustomResponseHeader.name.toLowerCase(), value: expectedCustomResponseHeader.value },
+                ...(isResponseBodyGzipped ? [{ name: 'content-encoding', value: 'gzip' }] : []),
               ],
               cookies: [],
               content: {
@@ -474,4 +478,91 @@ describe.each([
 
     expect(unrecordedResponse.status).toBe(404);
   });
+
+  // Gzip-specific tests
+  if (isResponseBodyGzipped) {
+    it('should re-compress response when content-encoding: gzip header is present', async () => {
+      // Verify the gzip header is present
+      expect(replayResponse.headers.get('content-encoding')).toBe('gzip');
+
+      // fetch() automatically decompresses gzip, so the body should be readable
+      expect(replayResponseBody).toEqual(expectedBody);
+    });
+
+    it('should serve properly compressed content that can be decompressed by clients', async () => {
+      // Use node's native http to get the raw (still-compressed) response
+      const http = await import('http');
+
+      const rawResponse = await new Promise<{ statusCode: number; headers: IncomingHttpHeaders; body: Buffer }>((resolve, reject) => {
+        const req = http.request(
+          {
+            hostname: 'localhost',
+            port: proxyPort,
+            path: '/api/hello',
+            method,
+            headers: {
+              'accept-encoding': 'gzip, deflate',
+              ...(hasRequestBody ? { 'content-type': 'application/json' } : {}),
+            },
+          },
+          (res) => {
+            const chunks: Buffer[] = [];
+            res.on('data', (chunk) => chunks.push(chunk));
+            res.on('end', () => {
+              resolve({
+                statusCode: res.statusCode || 0,
+                headers: res.headers,
+                body: Buffer.concat(chunks as Uint8Array[]),
+              });
+            });
+            res.on('error', reject);
+          },
+        );
+
+        if (hasRequestBody) {
+          req.write(JSON.stringify(expectedRequestBody));
+        }
+        req.on('error', reject);
+        req.end();
+      });
+
+      // Verify the raw response has gzip header
+      expect(rawResponse.statusCode).toBe(expectedStatus);
+      expect(rawResponse.headers['content-encoding']).toBe('gzip');
+
+      // Manually decompress to verify it's actually gzipped
+      const decompressed = await new Promise<Buffer>((resolve, reject) => {
+        zlib.gunzip(rawResponse.body as Uint8Array, (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        });
+      });
+
+      // Parse and verify the decompressed content
+      const parsedBody = JSON.parse(decompressed.toString('utf-8'));
+      expect(parsedBody).toEqual(expectedBody);
+    });
+
+    it('should not fail with "incorrect header check" error', async () => {
+      // This test ensures the bug is fixed: previously, the server would send
+      // decompressed content with content-encoding: gzip header, causing clients
+      // to fail when trying to decompress already-decompressed content
+
+      // Multiple requests should all succeed
+      for (let i = 0; i < 3; i++) {
+        const response = await fetch(`http://localhost:${proxyPort}/api/hello`, {
+          method,
+          headers: {
+            'accept-encoding': 'gzip, deflate',
+            ...(hasRequestBody ? { 'content-type': 'application/json' } : {}),
+          },
+          ...(hasRequestBody ? { body: JSON.stringify(expectedRequestBody) } : {}),
+        });
+
+        expect(response.status).toBe(expectedStatus);
+        const body = await response.json();
+        expect(body).toEqual(expectedBody);
+      }
+    });
+  }
 });

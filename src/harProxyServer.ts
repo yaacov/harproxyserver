@@ -9,9 +9,9 @@ import { hideBin } from 'yargs/helpers';
 
 import { exit } from 'process';
 import { readFileSync } from 'fs';
-import { appendEntryAndSaveHar, filterAndSaveHarLog, loadHarData } from './harFileUtils';
-import { recordedHarMiddleware } from './recordedHarMiddleware';
-import { recorderHarMiddleware } from './recorderHarMiddleware';
+import { appendEntryAndSaveHar, filterAndSaveHarLog, loadHarData } from './harFileUtils.js';
+import { getRecordedHarMiddleware } from './getRecordedHarMiddleware.js';
+import { getRecorderHarMiddleware, requestBodyBufferMiddleware } from './getRecorderHarMiddleware.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -77,6 +77,7 @@ const argv = yargs(hideBin(process.argv))
     },
   })
   .version('version', 'Show version and app information', `App: ${pkg.name}\nVersion: ${pkg.version}\nDescription: ${pkg.description}`)
+  .alias('version', 'v')
   .help('h')
   .alias('h', 'help')
   .parseSync();
@@ -115,11 +116,14 @@ switch (argv.mode) {
     break;
   }
   case 'play': {
-    app.use(`/${argv.prefix}*`, recordedHarMiddleware(harFile, loadHarData, argv.prefix));
+    app.use(`/${argv.prefix}*`, getRecordedHarMiddleware(harFile, loadHarData, argv.prefix));
     break;
   }
   case 'record': {
-    const onProxyResHandler = recorderHarMiddleware(harFile, appendEntryAndSaveHar, targetUrl);
+    const onProxyResHandler = getRecorderHarMiddleware(harFile, appendEntryAndSaveHar, targetUrl);
+
+    // Add body buffer middleware to capture POST/PUT/PATCH bodies before proxying
+    app.use(requestBodyBufferMiddleware);
 
     app.use(
       '/',
@@ -128,6 +132,16 @@ switch (argv.mode) {
         changeOrigin: true,
         selfHandleResponse: true,
         on: {
+          proxyReq: (proxyReq, req) => {
+            // Rewrite the body if it was buffered
+            const expressReq = req;
+            if (expressReq.body && Buffer.isBuffer(expressReq.body)) {
+              const bodyData = expressReq.body;
+              proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+              proxyReq.write(bodyData);
+              proxyReq.end();
+            }
+          },
           proxyRes: onProxyResHandler,
         },
         secure: argv.secure,

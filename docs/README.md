@@ -33,26 +33,26 @@ Run the server using the harServer command:
 
 Start the server in play mode (default)
 
-``` bash
+```bash
 harproxyserver -p 3000 -f recorded.har
 ```
 
 Start the server in record mode
 
-``` bash
+```bash
 harproxyserver -p 3000 -t http://example.com -f recorded.har -m record
 ```
 
 Start the server with HTTPS
 
-``` bash
+```bash
 harproxyserver -p 3000 -f recorded.har --tls --key-file server.key --cert-file serv
 ```
 
 Filter HAR file, to return only requests containing "forklift.konveyor.io" or "forklift-console-plugin"
 in the URL.
 
-``` bash
+```bash
 harproxyserver -m filter -f recorded.har --filter-endpoint-regexp "forklift.konveyor.io|forklift-console-plugin"
 ```
 
@@ -60,7 +60,7 @@ harproxyserver -m filter -f recorded.har --filter-endpoint-regexp "forklift.konv
 
 Before running the code from source, compile it using, `npm run build`, the compiled sources will be added to the `dist` directory.
 
-``` bash
+```bash
 # Compile development code
 npm run build
 
@@ -73,7 +73,7 @@ node dist/harProxyServer.js [options ...]
 Import the server and utility functions in your TypeScript project:
 
 ```ts
-import { findHarEntry, recordedHarMiddleware } from 'harproxyserver';
+import { findHarEntry, getRecordedHarMiddleware } from 'harproxyserver';
 ```
 
 Example 1: Using findHarEntry to find a specific GET request in a HAR log:
@@ -119,17 +119,17 @@ if (entry) {
 
 The available options for this tool are:
 
-  - --port, -p <number>: The port the server will listen on (default: 3000).
-  - --target-url, -t <url>: The target URL to proxy when in 'record' mode.
-  - --har-file, -f <file>: The file path to save the HAR file (default: recording-[date and time].har).
-  - --prefix <string>: The prefix for the HAR playback endpoint (default: '').
-  - --mode, -m <string>: The mode to run the server in (default: 'play'). Choices are 'play', 'record' or 'filter'.
-  - --tls: Run the server in secure mode (HTTPS) (default: false).
-  - --key-file <file>: Path to the TLS private key file (required when using --tls).
-  - --cert-file <file>: Path to the TLS certificate file (required when using --tls).
-  - --filter-endpoint-regexp <string>: RegExp to use when filtering a har file (filtered har file will include only matching endpoints)
-  - --sanitize <boolean>: Remove headers and cookies when filtering a har file
-  - --secure <boolean>: Enable/disable SSL certificate verification
+- --port, -p <number>: The port the server will listen on (default: 3000).
+- --target-url, -t <url>: The target URL to proxy when in 'record' mode.
+- --har-file, -f <file>: The file path to save the HAR file (default: recording-[date and time].har).
+- --prefix <string>: The prefix for the HAR playback endpoint (default: '').
+- --mode, -m <string>: The mode to run the server in (default: 'play'). Choices are 'play', 'record' or 'filter'.
+- --tls: Run the server in secure mode (HTTPS) (default: false).
+- --key-file <file>: Path to the TLS private key file (required when using --tls).
+- --cert-file <file>: Path to the TLS certificate file (required when using --tls).
+- --filter-endpoint-regexp <string>: RegExp to use when filtering a har file (filtered har file will include only matching endpoints)
+- --sanitize <boolean>: Remove headers and cookies when filtering a har file
+- --secure <boolean>: Enable/disable SSL certificate verification
 
 # License
 

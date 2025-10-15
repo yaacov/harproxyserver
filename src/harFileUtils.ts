@@ -1,14 +1,16 @@
 import fs from 'fs/promises';
+import { dirname } from 'path';
 
 import { Entry, Har, Log } from 'har-format';
-import { filterHarLog } from './harUtils';
+import { filterHarLog } from './harUtils.js';
 
 /**
  * Reads a HAR file and returns the parsed HAR object.
+ * If the file doesn't exist, returns an empty HAR object.
  *
  * @param {string} filePath - The path of the HAR file to read
- * @returns {Promise<Har>} The parsed HAR object
- * @throws Will throw an error if the HAR file cannot be read or parsed
+ * @returns {Promise<Har>} The parsed HAR object or an empty HAR if file doesn't exist
+ * @throws Will throw an error if the HAR file exists but cannot be parsed
  */
 export async function loadHarData(filePath: string): Promise<Har> {
   try {
@@ -17,11 +19,17 @@ export async function loadHarData(filePath: string): Promise<Har> {
 
     return har;
   } catch (error) {
-    console.error('Error reading HAR file:', error);
-  }
+    // Check if it's a file not found error
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      // File doesn't exist yet - this is normal for first recording
+      // Return empty HAR object silently
+      return { log: harLog };
+    }
 
-  // On error return empty Har object
-  return { log: harLog };
+    // For other errors (parsing, permissions, etc.), log and return empty HAR
+    console.error('Error reading HAR file:', error);
+    return { log: harLog };
+  }
 }
 
 /**
@@ -78,6 +86,8 @@ export async function appendEntryAndSaveHar(entry: Entry, filePath: string): Pro
   har.log.entries.push(entry);
 
   try {
+    // Ensure the directory exists before writing
+    await fs.mkdir(dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, JSON.stringify(har, null, 2));
   } catch (error) {
     console.error('Error writing HAR file:', error);
